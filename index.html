@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    <title>Alghanim</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <!-- favicon -->
+    <link rel="apple-touch-icon" href="assets/image/fav.png">
+    <link rel="shortcut icon" type="image/x-icon" href="assets/image/fav-icon.png">
+    <!-- Bootstrap CSS v5.2.1 -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- style css -->
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+</head>
+
+<body class="h-100">
+    <div class="container-fluid">
+        <header>
+            <nav class="navbar py-4 justify-content-between">
+                <a class="navbar-brand" href="#">
+                    <img src="assets/image/logo.svg" alt="Logo" />
+                </a>
+                <ul class="nav nav-tabs border-0 " id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="chat-tab" data-bs-toggle="tab" data-bs-target="#chat"
+                            type="button" role="tab" aria-controls="chat" aria-selected="true">chat</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="image-tab" data-bs-toggle="tab" data-bs-target="#image"
+                            type="button" role="tab" aria-controls="image" aria-selected="false">image</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="video-tab" data-bs-toggle="tab" data-bs-target="#video"
+                            type="button" role="tab" aria-controls="video" aria-selected="false">video</button>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+        <div class="row justify-content-center">
+            <div class="col-md-11">
+                <div class="row g-0 row-gap-3">
+                    <div class="col-xxl-9 col-lg-8 col-md-7">
+                        <div class="main__img__ai">
+                            <img class="img-fluid" src="assets/image/sara-chat-ai.png" alt="image"/>
+                        </div>
+                    </div>
+                    <!---->
+                    <div class="col-xxl-3 col-lg-4 col-md-5">
+                        <div class="tab-content" id="myTabContent">
+                            <div class="tab-pane fade show active" id="chat" role="tabpanel" aria-labelledby="chat-tab">
+                                <div class="chat__card bg-white h-100 d-flex flex-column justify-content-between">
+                                    <div class="card-header">
+                                        <h3 class="mb-0">Transcript</h3>
+                                    </div>
+                                    <!---->
+                                    <div class="card-body flex-grow-1">
+                                        <div class="chat__wrapper">
+
+                                            <!--robot-->
+                                            <div class="mb-2 d-flex align-items-end justify-content-end gap-2">
+                                                <div
+                                                    class="chat-bubble chat-robot d-flex justify-content-center align-items-center">
+                                                    aasd;faksldf;asldkfjasdf;alksd
+                                                </div>
+                                            </div>
+                                            <!--human-->
+                                            <div class="mb-2 d-flex align-items-start gap-2 justify-content-start">
+                                                <div
+                                                    class="chat-bubble chat-human d-flex justify-content-center align-items-center">
+                                                    In a recent conversation, the customer expressed satisfaction with
+                                                    the
+                                                    service provided, highlighting the prompt responses and helpfulness
+                                                    of
+                                                    the sup
+                                                </div>
+                                            </div>
+                                            <!--human-->
+                                            <div class="mb-2 d-flex align-items-start gap-2 justify-content-start">
+                                                <div
+                                                    class="chat-bubble chat-human d-flex justify-content-center align-items-center">
+                                                    In a recent conversation, the customer expressed satisfaction with
+                                                    the
+                                                    service provided, highlighting the prompt responses and helpfulness
+                                                    of
+                                                    the support team. They appreciated the detailed explanations given
+                                                    for
+                                                    their queries and felt reassured about their concerns. Overall, the
+                                                    interaction was positive, fostering trust and confidence in the
+                                                    service.
+                                                </div>
+                                            </div>
+                                            <!--robot-->
+                                            <div class="mb-2 d-flex align-items-end justify-content-end gap-2">
+                                                <div
+                                                    class="chat-bubble chat-robot d-flex justify-content-center align-items-center">
+                                                    aasd;faksldf;asldkfjasdf;alksd
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <form id="chat__form">
+                                            <div
+                                                class="input-group p-0 d-flex align-items-center justify-content-between mt-auto">
+                                                <input id="text-message" type="text" class="form-control border-0"
+                                                    placeholder="Typing...">
+                                                <button type="submit"
+                                                    class="btn d-flex align-items-center justify-content-center p-0 border-0">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                        fill="#fff" class="bi bi-send" viewBox="0 0 16 16">
+                                                        <path
+                                                            d="M15.964.686a.5.5 0 0 0-.65-.65L.844 6.509a.5.5 0 0 0 .01.934l4.895 1.555 1.555 4.895a.5.5 0 0 0 .934.01l6.473-14.47ZM6.58 8.228 2.593 6.905 13.634 2.3 6.58 8.228Zm.755.754 1.324 3.987 4.634-11.04L7.335 8.982Z" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+
+                                        </form>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="image" role="tabpanel" aria-labelledby="image-tab">
+                                <div class="image__card bg-white">
+                                    <div class="card-header">
+                                        <h3>Spark EUV - Blue</h3>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        <img class="img-fluid w-100 h-100" src="assets/image/img.png" alt="image" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="video" role="tabpanel" aria-labelledby="video-tab">
+                                <div class="video__card bg-white">
+                                    <div class="card-header">
+                                        <h3>Spark EUV -  different atmosphere 👾🎮</h3>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        <div class="video-container">
+                                            <video controls autoplay muted loop>
+                                                <source src="assets/image/video.mp4" type="video/mp4">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!---->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Bootstrap JavaScript Libraries -->
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("chat__form");
+            const input = document.getElementById("text-message");
+            const chatWrapper = document.querySelector(".chat__wrapper");
+            const cardBody = document.querySelector(".card-body");
+
+            // Scroll to bottom function
+            function scrollToBottom() {
+                cardBody.scrollTop = cardBody.scrollHeight;
+            }
+
+            scrollToBottom(); // عند تحميل الصفحة
+
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+                const message = input.value.trim();
+                if (message === "") return;
+
+                input.value = "";
+                const messageDiv = document.createElement("div");
+                messageDiv.className = "mb-2 d-flex align-items-start gap-2 justify-content-start";
+                const textDiv = document.createElement("div");
+                textDiv.className = "chat-bubble chat-human d-flex justify-content-center align-items-center";
+                textDiv.textContent = message;
+                messageDiv.appendChild(textDiv);
+                chatWrapper.appendChild(messageDiv);
+
+                scrollToBottom(); // بعد إضافة الرسالة
+            });
+        });
+
+
+    </script>
+</body>
+
+</html>
