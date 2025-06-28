@@ -38,7 +38,7 @@
                     </a>
                 </div>
                 <div class="wrap-login100 p-l-50 p-r-50 p-t-72 p-b-50">
-                    <!-- <ul class="nav nav-tabs border-0 " id="myTab" role="tablist">
+                    <ul class="nav nav-tabs border-0 d-none" id="myTab" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="chat-tab" data-bs-toggle="tab" data-bs-target="#chat"
                                 type="button" role="tab" aria-controls="chat" aria-selected="true">chat</button>
@@ -51,7 +51,7 @@
                             <button class="nav-link" id="video-tab" data-bs-toggle="tab" data-bs-target="#video"
                                 type="button" role="tab" aria-controls="video" aria-selected="false">video</button>
                         </li>
-                    </ul> -->
+                    </ul>
                     <div class="tab-content" id="myTabContent">
                         <div class="tab-pane fade show active" id="chat" role="tabpanel" aria-labelledby="chat-tab">
                             <div class="chat__card bg-white h-100 d-flex flex-column justify-content-between">
@@ -124,12 +124,15 @@
     </div>
     <!-- Bootstrap JavaScript Libraries -->
     <script src="assets/js/bootstrap.bundle.min.js"></script>
-     <script>
+    <script>
         document.addEventListener("DOMContentLoaded", function () {
             const form = document.getElementById("chat__form");
             const input = document.getElementById("text-message");
             const chatWrapper = document.querySelector(".chat__wrapper");
             const cardBody = document.querySelector(".card-body");
+
+            // Generate a unique user ID for this session
+            const userId = 'user_' + Math.random().toString(36).substr(2, 9);
 
             // Scroll to bottom function
             function scrollToBottom() {
@@ -138,12 +141,8 @@
 
             scrollToBottom(); // عند تحميل الصفحة
 
-            form.addEventListener("submit", function (e) {
-                e.preventDefault();
-                const message = input.value.trim();
-                if (message === "") return;
-
-                input.value = "";
+            // Function to add user message to chat
+            function addUserMessage(message) {
                 const messageDiv = document.createElement("div");
                 messageDiv.className = "mb-2 d-flex align-items-start gap-2 justify-content-start";
                 const textDiv = document.createElement("div");
@@ -151,12 +150,194 @@
                 textDiv.textContent = message;
                 messageDiv.appendChild(textDiv);
                 chatWrapper.appendChild(messageDiv);
+                scrollToBottom();
+            }
 
-                scrollToBottom(); // بعد إضافة الرسالة
+            // Function to add bot message with typing effect
+            function addBotMessage(message) {
+                const messageDiv = document.createElement("div");
+                messageDiv.className = "mb-2 d-flex align-items-start gap-2 justify-content-start";
+                const textDiv = document.createElement("div");
+                textDiv.className = "chat-bubble chat-robot d-flex justify-content-center align-items-center";
+                messageDiv.appendChild(textDiv);
+                chatWrapper.appendChild(messageDiv);
+                
+                // Typing effect
+                let index = 0;
+                textDiv.textContent = "";
+                
+                function typeWriter() {
+                    if (index < message.length) {
+                        textDiv.textContent += message.charAt(index);
+                        index++;
+                        scrollToBottom();
+                        setTimeout(typeWriter, 30); // Adjust speed here
+                    }
+                }
+                
+                typeWriter();
+                return textDiv;
+            }
+
+            // Function to show typing indicator
+            function showTypingIndicator() {
+                const typingDiv = document.createElement("div");
+                typingDiv.className = "mb-2 d-flex align-items-start gap-2 justify-content-start typing-indicator";
+                typingDiv.innerHTML = `
+                    <div class="chat-bubble chat-robot d-flex justify-content-center align-items-center">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                `;
+                chatWrapper.appendChild(typingDiv);
+                scrollToBottom();
+                return typingDiv;
+            }
+
+            // Function to remove typing indicator
+            function removeTypingIndicator() {
+                const typingIndicator = document.querySelector('.typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+
+            // Function to switch tabs based on screen type
+            function switchToTab(screenType) {
+                // Remove active classes from all tabs and content
+                document.querySelectorAll('.nav-link').forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.classList.remove('show', 'active');
+                });
+
+                // Determine which tab to activate
+                let targetTab, targetPane;
+                switch(screenType) {
+                    case 'image':
+                        targetTab = document.getElementById('image-tab');
+                        targetPane = document.getElementById('image');
+                        break;
+                    case 'video':
+                        targetTab = document.getElementById('video-tab');
+                        targetPane = document.getElementById('video');
+                        break;
+                    case 'default':
+                    case 'chat':
+                    default:
+                        targetTab = document.getElementById('chat-tab');
+                        targetPane = document.getElementById('chat');
+                        break;
+                }
+
+                // Activate the target tab and pane
+                if (targetTab && targetPane) {
+                    targetTab.classList.add('active');
+                    targetPane.classList.add('show', 'active');
+                }
+            }
+
+            // Function to send message to Dify
+            async function sendToDify(message) {
+                const typingIndicator = showTypingIndicator();
+                
+                try {
+                    const response = await fetch('/api/dify-chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            userId: userId
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to send message to Dify');
+                    }
+
+                    removeTypingIndicator();
+
+                    // Handle streaming response
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let botMessageDiv = null;
+                    let streamingMessage = '';
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        const chunk = decoder.decode(value);
+                        const lines = chunk.split('\n');
+
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                try {
+                                    const data = JSON.parse(line.slice(6));
+                                    
+                                    if (data.type === 'message') {
+                                        // For streaming, we'll collect the message but not display it yet
+                                        // We'll wait for the complete message to parse it properly
+                                        streamingMessage += data.content;
+                                    } else if (data.type === 'message_end') {
+                                        console.log('Message completed:', data.full_message);
+                                        
+                                        // Use the clean answer from the server
+                                        const finalMessage = data.full_message || streamingMessage;
+                                        const screenType = data.screen || 'default';
+                                        
+                                        // Add the bot message to chat
+                                        addBotMessage(finalMessage);
+                                        
+                                        // Switch to the appropriate tab based on screen type
+                                        switchToTab(screenType);
+                                        
+                                    } else if (data.type === 'error') {
+                                        console.error('Dify error:', data.message);
+                                        removeTypingIndicator();
+                                        addBotMessage('عذراً، حدث خطأ في معالجة رسالتك. يرجى المحاولة مرة أخرى.');
+                                    }
+                                } catch (parseError) {
+                                    console.error('Error parsing response:', parseError);
+                                }
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error sending to Dify:', error);
+                    removeTypingIndicator();
+                    addBotMessage('عذراً، حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.');
+                }
+            }
+
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+                const message = input.value.trim();
+                if (message === "") return;
+
+                // Add user message to chat
+                addUserMessage(message);
+                input.value = "";
+
+                // Send to Dify
+                sendToDify(message);
+            });
+
+            // Listen for speech recognition events
+            document.addEventListener('speechRecognized', function(e) {
+                const message = e.detail.message;
+                
+                // Add user message to chat
+                addUserMessage(message);
+                
+                // Send to Dify
+                sendToDify(message);
             });
         });
-
-
     </script>
     <script>
   const micToggle = document.getElementById("micToggle");
@@ -168,6 +349,24 @@
   let isListening = false;
   let speechToken = null;
   let speechRegion = null;
+
+  // Function to switch back to chat tab
+  function switchToChatTab() {
+    // Remove active classes from all tabs and content
+    document.querySelectorAll('.nav-link').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(pane => {
+      pane.classList.remove('show', 'active');
+    });
+
+    // Activate chat tab and pane
+    const chatTab = document.getElementById('chat-tab');
+    const chatPane = document.getElementById('chat');
+    
+    if (chatTab && chatPane) {
+      chatTab.classList.add('active');
+      chatPane.classList.add('show', 'active');
+    }
+  }
 
   // Get speech token from server
   async function getSpeechToken() {
@@ -214,6 +413,9 @@
     recognizer.recognizing = function (s, e) {
       console.log("Recognizing: " + e.result.text);
       textInput.value = e.result.text;
+      
+      // Switch back to chat tab when user starts speaking
+      switchToChatTab();
     };
 
     recognizer.recognized = function (s, e) {
@@ -221,22 +423,13 @@
         console.log("Recognized: " + e.result.text);
         textInput.value = e.result.text;
         
-        // Auto-submit the message to chat
+        // Auto-submit the message to chat and send to Dify
         if (e.result.text.trim() !== "") {
-          // Create and add the message to chat
-          const messageDiv = document.createElement("div");
-          messageDiv.className = "mb-2 d-flex align-items-start gap-2 justify-content-start";
-          const textDiv = document.createElement("div");
-          textDiv.className = "chat-bubble chat-human d-flex justify-content-center align-items-center";
-          textDiv.textContent = e.result.text;
-          messageDiv.appendChild(textDiv);
-          
-          const chatWrapper = document.querySelector(".chat__wrapper");
-          const cardBody = document.querySelector(".card-body");
-          chatWrapper.appendChild(messageDiv);
-          
-          // Scroll to bottom
-          cardBody.scrollTop = cardBody.scrollHeight;
+          // Get the sendToDify function from the main script
+          const event = new CustomEvent('speechRecognized', { 
+            detail: { message: e.result.text.trim() } 
+          });
+          document.dispatchEvent(event);
           
           // Clear the input
           textInput.value = "";
