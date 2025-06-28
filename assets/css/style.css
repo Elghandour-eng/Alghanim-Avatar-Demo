@@ -434,13 +434,14 @@ a {
   width: 400px;
   height: 100px;
   z-index: 2;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 #avatarVideo, #fallbackImage {
   width: 100% !important;
-  height: 100% !important;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  height: 90vh !important;
+
 }
 
 @media (max-width: 768px) {
