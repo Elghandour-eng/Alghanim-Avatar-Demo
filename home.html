@@ -3,7 +3,7 @@
 
 <head>
 
-    <title>Alghanim</title>
+    <title>Alghanim - Avatar Demo</title>
     <!-- Required meta tags -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -14,6 +14,8 @@
     <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
     <!-- style css -->
     <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+    <!-- Azure Speech SDK -->
+    <script src="https://aka.ms/csspeech/jsbrowserpackageraw"></script>
 </head>
 
 <body>
@@ -29,10 +31,10 @@
             <div class="container-login100">
                 <div class="login100-more position-relative" style="background-image: url('assets/image/sara-chat.png');">
                     <a class="login100-more-mic-off" id="micToggle">
-                        <video autoplay muted loop playsinline id="bgVideo">
+                        <video autoplay muted loop playsinline id="bgVideo" class="d-none">
                             <source src="assets/image/video-mic-bg.mp4" type="video/mp4" />
                         </video>
-                        <img id="playIcon" class="d-none" src="assets/image/mic-off.svg" alt="icon"/>
+                        <img id="playIcon" src="assets/image/mic-off.svg" alt="icon"/>
                     </a>
                 </div>
                 <div class="wrap-login100 p-l-50 p-r-50 p-t-72 p-b-50">
@@ -61,43 +63,10 @@
                                     <div class="chat__wrapper">
 
                                         <!--robot-->
-                                        <div class="mb-2 d-flex align-items-end justify-content-end gap-2">
-                                            <div
-                                                class="chat-bubble chat-robot d-flex justify-content-center align-items-center">
-                                                aasd;faksldf;asldkfjasdf;alksd
-                                            </div>
-                                        </div>
-                                        <!--human-->
                                         <div class="mb-2 d-flex align-items-start gap-2 justify-content-start">
                                             <div
-                                                class="chat-bubble chat-human d-flex justify-content-center align-items-center">
-                                                In a recent conversation, the customer expressed satisfaction with
-                                                the
-                                                service provided, highlighting the prompt responses and helpfulness
-                                                of
-                                                the sup
-                                            </div>
-                                        </div>
-                                        <!--human-->
-                                        <div class="mb-2 d-flex align-items-start gap-2 justify-content-start">
-                                            <div
-                                                class="chat-bubble chat-human d-flex justify-content-center align-items-center">
-                                                In a recent conversation, the customer expressed satisfaction with
-                                                the
-                                                service provided, highlighting the prompt responses and helpfulness
-                                                of
-                                                the support team. They appreciated the detailed explanations given
-                                                for
-                                                their queries and felt reassured about their concerns. Overall, the
-                                                interaction was positive, fostering trust and confidence in the
-                                                service.
-                                            </div>
-                                        </div>
-                                        <!--robot-->
-                                        <div class="mb-2 d-flex align-items-end justify-content-end gap-2">
-                                            <div
                                                 class="chat-bubble chat-robot d-flex justify-content-center align-items-center">
-                                                aasd;faksldf;asldkfjasdf;alksd
+                                                حياك الله انا ساره من شيفروليه الغانم اخبرني كيف يمكنني مساعدتك
                                             </div>
                                         </div>
                                     </div>
@@ -136,7 +105,7 @@
                         <div class="tab-pane fade" id="video" role="tabpanel" aria-labelledby="video-tab">
                             <div class="video__card bg-white">
                                 <div class="card-header">
-                                    <h3>Spark EUV -  different atmosphere 👾🎮</h3>
+                                    <h3>Spark EUV -  different atmosphere 👾🎮</h3>
                                 </div>
                                 <div class="card-body p-3">
                                     <div class="video-container">
@@ -193,19 +162,171 @@
   const micToggle = document.getElementById("micToggle");
   const video = document.getElementById("bgVideo");
   const image = document.getElementById("playIcon");
+  const textInput = document.getElementById("text-message");
 
-  micToggle.addEventListener("click", function (e) {
-    e.preventDefault(); // عشان ما ينفذش سلوك <a>
+  let recognizer = null;
+  let isListening = false;
+  let speechToken = null;
+  let speechRegion = null;
 
-    const videoVisible = !video.classList.contains("d-none");
+  // Get speech token from server
+  async function getSpeechToken() {
+    try {
+      const response = await fetch('/api/speech-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        speechToken = data.token;
+        speechRegion = data.region;
+        return true;
+      } else {
+        console.error('Failed to get speech token');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error getting speech token:', error);
+      return false;
+    }
+  }
 
-    if (videoVisible) {
-      video.classList.add("d-none");
-      image.classList.remove("d-none");
-    } else {
+  // Initialize Azure Speech Recognition
+  async function initializeSpeechRecognition() {
+    if (!speechToken) {
+      const tokenReceived = await getSpeechToken();
+      if (!tokenReceived) {
+        console.error('Cannot initialize speech recognition without token');
+        return false;
+      }
+    }
+
+    const speechConfig = SpeechSDK.SpeechConfig.fromAuthorizationToken(speechToken, speechRegion);
+    speechConfig.speechRecognitionLanguage = "ar-SA"; // Arabic (Saudi Arabia)
+    
+    const audioConfig = SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
+    recognizer = new SpeechSDK.SpeechRecognizer(speechConfig, audioConfig);
+
+    // Event handlers
+    recognizer.recognizing = function (s, e) {
+      console.log("Recognizing: " + e.result.text);
+      textInput.value = e.result.text;
+    };
+
+    recognizer.recognized = function (s, e) {
+      if (e.result.reason === SpeechSDK.ResultReason.RecognizedSpeech) {
+        console.log("Recognized: " + e.result.text);
+        textInput.value = e.result.text;
+        
+        // Auto-submit the message to chat
+        if (e.result.text.trim() !== "") {
+          // Create and add the message to chat
+          const messageDiv = document.createElement("div");
+          messageDiv.className = "mb-2 d-flex align-items-start gap-2 justify-content-start";
+          const textDiv = document.createElement("div");
+          textDiv.className = "chat-bubble chat-human d-flex justify-content-center align-items-center";
+          textDiv.textContent = e.result.text;
+          messageDiv.appendChild(textDiv);
+          
+          const chatWrapper = document.querySelector(".chat__wrapper");
+          const cardBody = document.querySelector(".card-body");
+          chatWrapper.appendChild(messageDiv);
+          
+          // Scroll to bottom
+          cardBody.scrollTop = cardBody.scrollHeight;
+          
+          // Clear the input
+          textInput.value = "";
+          
+          // Keep listening - don't stop the microphone
+        }
+      }
+    };
+
+    recognizer.canceled = function (s, e) {
+      console.log("Recognition canceled: " + e.reason);
+      if (e.reason === SpeechSDK.CancellationReason.Error) {
+        console.log("Error details: " + e.errorDetails);
+      }
+      stopListening();
+    };
+
+    recognizer.sessionStopped = function (s, e) {
+      console.log("Session stopped");
+      stopListening();
+    };
+
+    return true;
+  }
+
+  async function startListening() {
+    try {
+      if (!recognizer) {
+        const initialized = await initializeSpeechRecognition();
+        if (!initialized) {
+          console.error('Failed to initialize speech recognition');
+          return;
+        }
+      }
+      
+      isListening = true;
+      recognizer.startContinuousRecognitionAsync(
+        function() {
+          console.log("Speech recognition started");
+        },
+        function(err) {
+          console.error("Error starting recognition: " + err);
+          stopListening();
+        }
+      );
+      
+      // Update UI - When listening, show video (mic on)
       video.classList.remove("d-none");
       image.classList.add("d-none");
+      textInput.placeholder = "Listening...";
+    } catch (error) {
+      console.error('Error in startListening:', error);
+      stopListening();
     }
+  }
+
+  function stopListening() {
+    if (recognizer && isListening) {
+      recognizer.stopContinuousRecognitionAsync(
+        function() {
+          console.log("Speech recognition stopped");
+        },
+        function(err) {
+          console.error("Error stopping recognition: " + err);
+        }
+      );
+    }
+    
+    isListening = false;
+    
+    // Update UI - When not listening, show mic-off icon
+    video.classList.add("d-none");
+    image.classList.remove("d-none");
+    textInput.placeholder = "Typing...";
+  }
+
+  micToggle.addEventListener("click", function (e) {
+    e.preventDefault();
+
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  });
+
+  // Initialize on page load
+  document.addEventListener("DOMContentLoaded", function() {
+    // Get initial token
+    getSpeechToken();
   });
 </script>
 </body>

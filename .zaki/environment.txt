@@ -1,0 +1,52 @@
+# SYSTEM INFORMATION
+Operating System: Windows_NT 10.0.26100
+Default Shell: C:\Users\a.elghandour\AppData\Local\Programs\Git\bin\bash.exe
+Home Directory: C:\Users\a.elghandour
+Current Working Directory: c:\Users\a.elghandour\OneDrive - CEQUENS\Desktop\Ceq_Projects\Alghanim-Avatar-Demo
+Platform: win32
+Architecture: x64
+Node Version: v20.19.0
+Total Memory: 16GB
+Free Memory: 1GB
+CPU Cores: 12
+
+Current Time: 6/28/2025, 10:31:23 AM (Africa/Cairo, UTC+3:00)
+
+# EDITOR STATE
+
+Visible Files:
+
+Open Tabs:
+
+# WORKSPACE SUMMARY
+
+Important Project Files:
+  README.md
+
+Files:
+  README.md
+  assets/
+  home.html
+  index.html
+  assets/css/
+  assets/fonts/
+  assets/image/
+  assets/js/
+  assets/css/bootstrap.min.css
+  assets/css/bootstrap.min.css.map
+  assets/css/style.css
+  assets/css/style.css.map
+  assets/css/style.scss
+  assets/fonts/OutfitBold.ttf
+  assets/fonts/OutfitRegular.ttf
+  assets/js/bootstrap.bundle.min.js
+  assets/js/bootstrap.bundle.min.js.map
+  assets/image/ai-chat.png
+  assets/image/fav-icon.png
+  assets/image/img.png
+  assets/image/logo.svg
+  assets/image/mic-off.svg
+  assets/image/sara-chat-ai.png
+  assets/image/sara-chat.png
+  assets/image/video-mic-bg.mp4
+  assets/image/video.mp4
