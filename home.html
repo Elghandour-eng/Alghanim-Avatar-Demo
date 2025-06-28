@@ -29,8 +29,39 @@
         </header>
         <div class="limiter w-100 mx-auto">
             <div class="container-login100">
-                <div class="login100-more position-relative" style="background-image: url('assets/image/sara-chat.png');">
-                    <a class="login100-more-mic-off" id="micToggle">
+                <div class="login100-more position-relative">
+                    <!-- HeyGen Avatar Video Container -->
+                    <div id="avatarContainer" class="position-relative w-100 h-100">
+                        <!-- Fallback image shown by default -->
+                        <div id="fallbackImage" class="w-100 h-100 position-absolute top-0 start-0" style="background-image: url('assets/image/sara-chat.png'); background-size: cover; background-position: center; z-index: 1;"></div>
+                        
+                        <!-- Avatar video (hidden by default) -->
+                        <video id="avatarVideo" class="w-100 h-100 position-absolute top-0 start-0" autoplay muted style="object-fit: cover; background: #000; z-index: 2; display: none;"></video>
+                        
+                        <!-- Canvas for potential future use -->
+                        <canvas id="avatarCanvas" class="w-100 h-100 position-absolute top-0 start-0" style="display: none; object-fit: cover; z-index: 3;"></canvas>
+                        
+                        <!-- Loading indicator -->
+                        <div id="loadingIndicator" class="position-absolute top-50 start-50 translate-middle" style="z-index: 4; display: none;">
+                            <div class="spinner-border text-light" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <div class="text-light mt-2 text-center">Connecting Avatar...</div>
+                        </div>
+                        
+                        <!-- Avatar Status Indicator -->
+                        <div id="avatarStatus" class="position-absolute top-0 end-0 m-2 px-2 py-1 rounded" style="background: rgba(0,0,0,0.7); color: white; font-size: 12px; z-index: 5; display: none;">
+                            Avatar: <span id="statusText">Initializing...</span>
+                        </div>
+                        
+                        <!-- Error indicator -->
+                        <div id="errorIndicator" class="position-absolute bottom-0 start-0 end-0 m-2 p-2 rounded" style="background: rgba(220, 53, 69, 0.9); color: white; font-size: 12px; z-index: 6; display: none;">
+                            <span id="errorText">Connection error. Using fallback image.</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Mic Toggle Button -->
+                    <a class="login100-more-mic-off" id="micToggle" style="z-index: 10; position: relative;">
                         <video autoplay muted loop playsinline id="bgVideo" class="d-none">
                             <source src="assets/image/video-mic-bg.mp4" type="video/mp4" />
                         </video>
@@ -290,6 +321,12 @@
                                         // Add the bot message to chat
                                         addBotMessage(finalMessage);
                                         
+                                        // Trigger avatar to speak the message
+                                        const avatarEvent = new CustomEvent('botMessageReceived', { 
+                                            detail: { message: finalMessage } 
+                                        });
+                                        document.dispatchEvent(avatarEvent);
+                                        
                                         // Switch to the appropriate tab based on screen type
                                         switchToTab(screenType);
                                         
@@ -313,6 +350,13 @@
 
             form.addEventListener("submit", function (e) {
                 e.preventDefault();
+
+                // Unmute avatar on first text submission
+                if (heygenAvatar && heygenAvatar.avatarVideo && heygenAvatar.avatarVideo.muted) {
+                    heygenAvatar.avatarVideo.muted = false;
+                    console.log("Avatar unmuted by text submission.");
+                }
+
                 const message = input.value.trim();
                 if (message === "") return;
 
@@ -454,6 +498,12 @@
 
   async function startListening() {
     try {
+      // Unmute the avatar video on user interaction to enable audio
+      if (heygenAvatar && heygenAvatar.avatarVideo && heygenAvatar.avatarVideo.muted) {
+        heygenAvatar.avatarVideo.muted = false;
+        console.log("Avatar unmuted by voice input.");
+      }
+
       if (!recognizer) {
         const initialized = await initializeSpeechRecognition();
         if (!initialized) {
@@ -518,6 +568,429 @@
     // Get initial token
     getSpeechToken();
   });
+</script>
+
+<!-- HeyGen Avatar Integration Script -->
+<script>
+class HeyGenAvatar {
+  constructor() {
+    this.sessionInfo = null;
+    this.peerConnection = null;
+    this.avatarVideo = document.getElementById('avatarVideo');
+    this.avatarCanvas = document.getElementById('avatarCanvas');
+    this.fallbackImage = document.getElementById('fallbackImage');
+    this.loadingIndicator = document.getElementById('loadingIndicator');
+    this.errorIndicator = document.getElementById('errorIndicator');
+    this.statusElement = document.getElementById('statusText');
+    this.avatarStatus = document.getElementById('avatarStatus');
+    this.isInitialized = false;
+    this.isConnected = false;
+    this.connectionAttempts = 0;
+    this.maxRetries = 3;
+    this.retryDelay = 2000; // 2 seconds
+    
+    // Initialize avatar on page load with retry mechanism
+    this.initializeAvatarWithRetry();
+  }
+
+  updateStatus(message) {
+    console.log('Avatar Status:', message);
+    if (this.statusElement) {
+      this.statusElement.textContent = message;
+    }
+  }
+
+  showStatus() {
+    if (this.avatarStatus) {
+      this.avatarStatus.style.display = 'block';
+    }
+  }
+
+  hideStatus() {
+    if (this.avatarStatus) {
+      this.avatarStatus.style.display = 'none';
+    }
+  }
+
+  showLoading() {
+    if (this.loadingIndicator) {
+      this.loadingIndicator.style.display = 'block';
+    }
+  }
+
+  hideLoading() {
+    if (this.loadingIndicator) {
+      this.loadingIndicator.style.display = 'none';
+    }
+  }
+
+  showError(message) {
+    if (this.errorIndicator) {
+      const errorText = document.getElementById('errorText');
+      if (errorText) {
+        errorText.textContent = message;
+      }
+      this.errorIndicator.style.display = 'block';
+      
+      // Auto-hide error after 5 seconds
+      setTimeout(() => {
+        this.hideError();
+      }, 5000);
+    }
+  }
+
+  hideError() {
+    if (this.errorIndicator) {
+      this.errorIndicator.style.display = 'none';
+    }
+  }
+
+  showAvatar() {
+    this.avatarVideo.style.display = 'block';
+    this.fallbackImage.style.display = 'none';
+    this.hideLoading();
+    this.hideError();
+  }
+
+  showFallback() {
+    this.avatarVideo.style.display = 'none';
+    this.fallbackImage.style.display = 'block';
+    this.hideLoading();
+  }
+
+  async initializeAvatarWithRetry() {
+    this.connectionAttempts++;
+    
+    try {
+      this.showLoading();
+      this.showStatus();
+      this.updateStatus('Connecting...');
+      
+      await this.initializeAvatar();
+      
+      if (this.isInitialized) {
+        this.updateStatus('Connected');
+        this.connectionAttempts = 0; // Reset on success
+        
+        // Hide status after 3 seconds
+        setTimeout(() => {
+          this.hideStatus();
+        }, 3000);
+      }
+    } catch (error) {
+      console.error(`Avatar initialization attempt ${this.connectionAttempts} failed:`, error);
+      
+      if (this.connectionAttempts < this.maxRetries) {
+        this.updateStatus(`Retrying... (${this.connectionAttempts}/${this.maxRetries})`);
+        this.showError(`Connection failed. Retrying... (${this.connectionAttempts}/${this.maxRetries})`);
+        
+        // Retry after delay
+        setTimeout(() => {
+          this.initializeAvatarWithRetry();
+        }, this.retryDelay);
+      } else {
+        this.updateStatus('Connection failed');
+        this.showError('Avatar connection failed. Using fallback image.');
+        this.showFallback();
+        
+        // Hide status after 5 seconds
+        setTimeout(() => {
+          this.hideStatus();
+        }, 5000);
+      }
+    }
+  }
+
+  async initializeAvatar() {
+    try {
+      // Get avatar configuration from server
+      const configResponse = await fetch('/api/heygen-config');
+      if (!configResponse.ok) {
+        throw new Error('Failed to get avatar configuration');
+      }
+      
+      const config = await configResponse.json();
+      
+      // Validate configuration
+      if (!config.avatarId || !config.voiceId) {
+        throw new Error('Invalid avatar configuration received');
+      }
+      
+      // Create new session
+      await this.createNewSession(config.avatarId, config.voiceId);
+      
+      if (this.sessionInfo) {
+        await this.startSession();
+        this.isInitialized = true;
+      } else {
+        throw new Error('Failed to create session');
+      }
+    } catch (error) {
+      console.error('Failed to initialize avatar:', error);
+      throw error; // Re-throw to trigger retry mechanism
+    }
+  }
+
+  async createNewSession(avatarId, voiceId) {
+    try {
+      const response = await fetch('/api/heygen-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          avatarId: avatarId,
+          voiceId: voiceId
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to create session: ${response.status} - ${errorText}`);
+      }
+
+      this.sessionInfo = await response.json();
+      
+      if (!this.sessionInfo.sdp || !this.sessionInfo.ice_servers2) {
+        throw new Error('Invalid session info received');
+      }
+
+      // Create RTCPeerConnection with better configuration
+      const rtcConfig = { 
+        iceServers: this.sessionInfo.ice_servers2,
+        iceCandidatePoolSize: 10,
+        iceTransportPolicy: 'all'
+      };
+      
+      this.peerConnection = new RTCPeerConnection(rtcConfig);
+
+      // Handle incoming video stream
+      this.peerConnection.ontrack = (event) => {
+        console.log('Received video track');
+        if (event.track.kind === 'video') {
+          this.avatarVideo.srcObject = event.streams[0];
+          
+          // Wait for video to be ready before showing
+          this.avatarVideo.onloadedmetadata = () => {
+            console.log('Video metadata loaded');
+            this.showAvatar();
+          };
+          
+          this.avatarVideo.oncanplay = () => {
+            console.log('Video can play');
+            this.showAvatar();
+          };
+          
+          // Handle video errors
+          this.avatarVideo.onerror = (error) => {
+            console.error('Video error:', error);
+            this.showFallback();
+            this.showError('Video playback error');
+          };
+        }
+      };
+
+      // Handle data channel messages
+      this.peerConnection.ondatachannel = (event) => {
+        const dataChannel = event.channel;
+        dataChannel.onmessage = (event) => {
+          console.log('Received message from avatar:', event.data);
+        };
+      };
+
+      // Handle connection state changes
+      this.peerConnection.onconnectionstatechange = () => {
+        const state = this.peerConnection.connectionState;
+        console.log('Connection state:', state);
+        
+        switch (state) {
+          case 'connected':
+            this.isConnected = true;
+            this.updateStatus('Connected');
+            break;
+          case 'disconnected':
+            this.isConnected = false;
+            this.updateStatus('Disconnected');
+            this.showError('Avatar disconnected');
+            break;
+          case 'failed':
+            this.isConnected = false;
+            this.updateStatus('Connection failed');
+            this.showFallback();
+            this.showError('Connection failed');
+            break;
+        }
+      };
+
+      // Set remote description
+      const remoteDescription = new RTCSessionDescription(this.sessionInfo.sdp);
+      await this.peerConnection.setRemoteDescription(remoteDescription);
+
+      console.log('Session created successfully');
+      return true;
+    } catch (error) {
+      console.error('Error creating session:', error);
+      this.sessionInfo = null;
+      throw error;
+    }
+  }
+
+  async startSession() {
+    if (!this.sessionInfo || !this.peerConnection) {
+      throw new Error('Session not initialized');
+    }
+
+    try {
+      // Create and set local description
+      const localDescription = await this.peerConnection.createAnswer();
+      await this.peerConnection.setLocalDescription(localDescription);
+
+      // Handle ICE candidates
+      this.peerConnection.onicecandidate = ({ candidate }) => {
+        if (candidate) {
+          this.handleICE(candidate.toJSON());
+        }
+      };
+
+      // Start the session
+      const response = await fetch('/api/heygen-start', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sessionId: this.sessionInfo.session_id,
+          sdp: localDescription
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to start session');
+      }
+
+      console.log('Session started successfully');
+      return true;
+    } catch (error) {
+      console.error('Error starting session:', error);
+      throw error;
+    }
+  }
+
+  async handleICE(candidate) {
+    try {
+      await fetch('/api/heygen-ice', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sessionId: this.sessionInfo.session_id,
+          candidate: candidate
+        })
+      });
+    } catch (error) {
+      console.error('Error handling ICE candidate:', error);
+    }
+  }
+
+  async speakText(text) {
+    if (!this.isInitialized || !this.sessionInfo) {
+      console.warn('Avatar not initialized, cannot speak');
+      return false;
+    }
+
+    try {
+      const response = await fetch('/api/heygen-speak', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sessionId: this.sessionInfo.session_id,
+          text: text
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send text to avatar');
+      }
+
+      console.log('Text sent to avatar successfully');
+      return true;
+    } catch (error) {
+      console.error('Error speaking text:', error);
+      return false;
+    }
+  }
+
+  async closeSession() {
+    if (this.peerConnection) {
+      this.peerConnection.close();
+      this.peerConnection = null;
+    }
+
+    if (this.sessionInfo) {
+      try {
+        await fetch('/api/heygen-stop', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            sessionId: this.sessionInfo.session_id
+          })
+        });
+      } catch (error) {
+        console.error('Error closing session:', error);
+      }
+      
+      this.sessionInfo = null;
+    }
+
+    this.isInitialized = false;
+    this.isConnected = false;
+    this.showFallback();
+  }
+
+  // Method to manually retry connection
+  async retryConnection() {
+    console.log('Manually retrying avatar connection...');
+    this.connectionAttempts = 0; // Reset attempts
+    await this.closeSession(); // Clean up existing session
+    this.initializeAvatarWithRetry(); // Start fresh
+  }
+}
+
+// Initialize avatar when page loads
+let heygenAvatar = null;
+
+document.addEventListener("DOMContentLoaded", function() {
+  // Initialize HeyGen Avatar
+  heygenAvatar = new HeyGenAvatar();
+  
+  // Listen for bot messages to make avatar speak
+  document.addEventListener('botMessageReceived', function(e) {
+    const message = e.detail.message;
+    if (heygenAvatar && message) {
+      heygenAvatar.speakText(message);
+    }
+  });
+  
+  // Add manual retry button functionality (optional)
+  // You can add a retry button in the UI if needed
+  window.retryAvatarConnection = function() {
+    if (heygenAvatar) {
+      heygenAvatar.retryConnection();
+    }
+  };
+});
+
+// Clean up on page unload
+window.addEventListener('beforeunload', function() {
+  if (heygenAvatar) {
+    heygenAvatar.closeSession();
+  }
+});
 </script>
 </body>
 
