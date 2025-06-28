@@ -572,6 +572,9 @@
 
     async function startListening() {
       try {
+        // Add loading animation
+        micToggle.classList.add("loading");
+        
         // Unmute the avatar video on user interaction to enable audio
         if (heygenAvatar && heygenAvatar.avatarVideo && heygenAvatar.avatarVideo.muted) {
           heygenAvatar.avatarVideo.muted = false;
@@ -582,6 +585,12 @@
           const initialized = await initializeSpeechRecognition();
           if (!initialized) {
             console.error('Failed to initialize speech recognition');
+            // Add error animation
+            micToggle.classList.remove("loading");
+            micToggle.classList.add("error");
+            setTimeout(() => {
+              micToggle.classList.remove("error");
+            }, 500);
             return;
           }
         }
@@ -590,9 +599,18 @@
         recognizer.startContinuousRecognitionAsync(
           function () {
             console.log("Speech recognition started");
+            // Remove loading and add listening animation
+            micToggle.classList.remove("loading");
+            micToggle.classList.add("listening");
           },
           function (err) {
             console.error("Error starting recognition: " + err);
+            // Add error animation
+            micToggle.classList.remove("loading");
+            micToggle.classList.add("error");
+            setTimeout(() => {
+              micToggle.classList.remove("error");
+            }, 500);
             stopListening();
           }
         );
@@ -603,6 +621,12 @@
         textInput.placeholder = "Listening...";
       } catch (error) {
         console.error('Error in startListening:', error);
+        // Add error animation
+        micToggle.classList.remove("loading");
+        micToggle.classList.add("error");
+        setTimeout(() => {
+          micToggle.classList.remove("error");
+        }, 500);
         stopListening();
       }
     }
@@ -621,6 +645,9 @@
 
       isListening = false;
 
+      // Remove listening animation
+      micToggle.classList.remove("listening", "loading");
+
       // Update UI - When not listening, show mic-off icon
       video.classList.add("d-none");
       image.classList.remove("d-none");
@@ -629,6 +656,12 @@
 
     micToggle.addEventListener("click", function (e) {
       e.preventDefault();
+
+      // Add click ripple effect
+      micToggle.classList.add("clicked");
+      setTimeout(() => {
+        micToggle.classList.remove("clicked");
+      }, 600);
 
       if (isListening) {
         stopListening();

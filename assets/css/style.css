@@ -207,6 +207,11 @@ a {
   box-shadow: -1px 0px 25px -1px rgba(0, 0, 0, 0.2509803922);
   border-radius: 16px;
   margin: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
 }
 .image__card .card-header {
   padding-block: 16px;
@@ -294,22 +299,135 @@ a {
   margin: auto;
   right: 0;
   left: 0;
-  bottom: 100px;
+  bottom: 220px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: all 0.3s ease;
+  animation: breathe 3s ease-in-out infinite;
 }
+
+.login100-more-mic-off:hover {
+  transform: scale(1.1);
+  animation: none;
+}
+
+.login100-more-mic-off:active {
+  transform: scale(0.95);
+}
+
 .login100-more-mic-off video {
   width: 80px;
   height: 80px;
   border-radius: 100%;
   -o-object-fit: cover;
      object-fit: cover;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 0 0 rgba(70, 147, 224, 0.7);
 }
+
 .login100-more-mic-off img {
   width: 80px;
   height: 80px;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+/* Breathing animation for idle state */
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Pulse animation for listening state */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(70, 147, 224, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 20px rgba(70, 147, 224, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(70, 147, 224, 0);
+  }
+}
+
+/* Listening state animations */
+.login100-more-mic-off.listening {
+  animation: none;
+}
+
+.login100-more-mic-off.listening video {
+  animation: pulse 2s infinite;
+  box-shadow: 0 0 20px rgba(70, 147, 224, 0.6);
+}
+
+
+/* Ripple effect on click */
+.login100-more-mic-off::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(70, 147, 224, 0.4);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+  z-index: -1;
+}
+
+.login100-more-mic-off.clicked::after {
+  width: 120px;
+  height: 120px;
+  opacity: 0;
+}
+
+/* Smooth rotation for mic icon */
+.login100-more-mic-off img {
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.login100-more-mic-off:hover img {
+  transform: rotate(5deg);
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.3)) brightness(1.1);
+}
+
+/* Loading state animation */
+.login100-more-mic-off.loading {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error state animation */
+.login100-more-mic-off.error {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
 }
 
 .wrap-login100 {
