@@ -3,18 +3,32 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
+console.log('🚀 Starting Alghanim Avatar Demo Server...');
+console.log('📋 Environment variables loaded');
+console.log(`🔧 Node environment: ${process.env.NODE_ENV || 'development'}`);
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+console.log(`⚙️  Server will run on port: ${PORT}`);
+
 // Middleware
+console.log('🔧 Setting up middleware...');
 app.use(cors());
+console.log('✅ CORS middleware enabled');
+
 app.use(express.json());
+console.log('✅ JSON parsing middleware enabled');
 
 // Store conversation IDs for users (in production, use a proper database)
 const userConversations = new Map();
+console.log('💾 User conversations storage initialized');
 
 // Serve the main HTML file first (before static middleware)
+console.log('🌐 Setting up route handlers...');
 app.get('/', (req, res) => {
+    console.log('📄 GET / - Serving home.html');
+    console.log(`🔍 Request from IP: ${req.ip || req.connection.remoteAddress}`);
     res.sendFile(path.join(__dirname, 'home.html'));
 });
 
@@ -22,23 +36,34 @@ app.get('/', (req, res) => {
 app.use(express.static('.', {
     index: false // Disable automatic index.html serving
 }));
+console.log('📁 Static file serving configured');
 
 // Also serve home.html directly
 app.get('/home', (req, res) => {
+    console.log('🏠 GET /home - Serving home.html');
+    console.log(`🔍 Request from IP: ${req.ip || req.connection.remoteAddress}`);
     res.sendFile(path.join(__dirname, 'home.html'));
 });
 
 // API endpoint to get Azure Speech configuration
 app.get('/api/speech-config', (req, res) => {
+    console.log('🎤 GET /api/speech-config - Azure Speech configuration requested');
+    console.log(`🔍 Request from IP: ${req.ip || req.connection.remoteAddress}`);
+    
     try {
+        console.log(`🌍 Azure Speech Region: ${process.env.AZURE_SPEECH_REGION}`);
+        
         // Return only the necessary configuration without exposing the full key
-        res.json({
+        const config = {
             region: process.env.AZURE_SPEECH_REGION,
             // We'll use a token-based approach for better security
             success: true
-        });
+        };
+        
+        console.log('✅ Speech configuration sent successfully');
+        res.json(config);
     } catch (error) {
-        console.error('Error getting speech config:', error);
+        console.error('❌ Error getting speech config:', error);
         res.status(500).json({ error: 'Failed to get speech configuration' });
     }
 });
