@@ -21,9 +21,9 @@
 <body>
     <div class="container-fluid">
          <header>
-            <nav class="navbar py-4 justify-content-between fixed-lg-top">
+            <nav class="navbar">
                 <a class="navbar-brand" href="#">
-                    <img src="assets/image/logo.svg" alt="Logo" />
+                    <img src="assets/image/logo.png" alt="Logo" />
                 </a>
             </nav>
         </header>
@@ -76,7 +76,7 @@
                                         <div
                                             class="input-group p-0 d-flex align-items-center justify-content-between mt-auto">
                                             <input id="text-message" type="text" class="form-control border-0"
-                                                placeholder="Typing...">
+                                                placeholder="Typing..">
                                             <button type="submit"
                                                 class="btn d-flex align-items-center justify-content-center p-0 border-0">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -134,12 +134,13 @@
             // Generate a unique user ID for this session
             const userId = 'user_' + Math.random().toString(36).substr(2, 9);
 
-            // Scroll to bottom function
+            // Scroll to bottom function (removed auto-scroll)
             function scrollToBottom() {
+                // Only scroll when explicitly needed for new messages
                 cardBody.scrollTop = cardBody.scrollHeight;
             }
 
-            scrollToBottom(); // عند تحميل الصفحة
+            // Don't auto-scroll on page load
 
             // Function to add user message to chat
             function addUserMessage(message) {
@@ -185,11 +186,7 @@
                 typingDiv.className = "mb-2 d-flex align-items-start gap-2 justify-content-start typing-indicator";
                 typingDiv.innerHTML = `
                     <div class="chat-bubble chat-robot d-flex justify-content-center align-items-center">
-                        <div class="typing-dots">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </div>
+                        <span style="color: #838789; font-style: italic;">Typing...</span>
                     </div>
                 `;
                 chatWrapper.appendChild(typingDiv);
@@ -503,7 +500,7 @@
     // Update UI - When not listening, show mic-off icon
     video.classList.add("d-none");
     image.classList.remove("d-none");
-    textInput.placeholder = "Typing...";
+    textInput.placeholder = "Typing..";
   }
 
   micToggle.addEventListener("click", function (e) {

@@ -141,7 +141,7 @@ a {
   overflow-y: auto;
   height: calc(100vh - 249px);
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
 }
 .chat__card .card-body .chat__wrapper {
   display: flex;
@@ -156,14 +156,14 @@ a {
   padding-inline: 16px;
 }
 .chat__card .card-body .chat-bubble.chat-robot {
-  background: #4D98E2;
-  color: #F9FAF8;
+  background: #F3F3F3;
+  color: #1E1E1E;
   border-radius: 10px 10px 0 10px;
 }
 .chat__card .card-body .chat-bubble.chat-human {
-  background: #F3F3F3;
+  background: #4D98E2;
   border-radius: 10px;
-  color: #1E1E1E;
+  color: #F9FAF8;
 }
 .chat__card .card-footer {
   padding: 8px 16px;
@@ -344,6 +344,37 @@ a {
   }
   .p-t-72 {
     padding-top: 72px;
+  }
+}
+
+/*-----------------------
+    Navbar & Logo Styles
+-------------------------*/
+.navbar {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: auto;
+  width: auto;
+  z-index: 1000;
+  background: transparent;
+  padding: 10px 20px !important;
+}
+
+.navbar-brand img {
+  width: 420px !important;
+  height: auto !important;
+  max-height: 240px !important;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 8px 15px !important;
+  }
+  
+  .navbar-brand img {
+    width: 100px !important;
+    max-height: 50px !important;
   }
 }
 
