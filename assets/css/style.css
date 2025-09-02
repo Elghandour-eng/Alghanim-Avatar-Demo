@@ -17,7 +17,7 @@
     :root
 -------------------------*/
 :root {
-  --body-bg: #4693E0;
+  --body-bg: #4693e0;
 }
 
 /*-----------------------
@@ -43,11 +43,11 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #F1F1F1;
+  background: #f1f1f1;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #BBBDC1;
+  background: #bbbdc1;
   border-radius: 120px;
 }
 
@@ -58,10 +58,10 @@ html {
   overflow-x: hidden !important;
 }
 
-html[dir=ltr] body {
+html[dir="ltr"] body {
   font-family: "OutfitRegular";
 }
-html[dir=ltr] .chat__card .card-header h3 {
+html[dir="ltr"] .chat__card .card-header h3 {
   font-family: "OutfitBold";
 }
 
@@ -131,7 +131,7 @@ a {
 .chat__card .card-header {
   padding-block: 16px;
   padding-inline: 16px;
-  border-bottom: 1px solid #E5E6E7;
+  border-bottom: 1px solid #e5e6e7;
 }
 .chat__card .card-header h3 {
   font-size: 20px;
@@ -158,18 +158,18 @@ a {
   text-align: left;
 }
 .chat__card .card-body .chat-bubble.chat-robot {
-  background: #F3F3F3;
-  color: #1E1E1E;
+  background: #f3f3f3;
+  color: #1e1e1e;
   border-radius: 10px 10px 0 10px;
 }
 .chat__card .card-body .chat-bubble.chat-human {
-  background: #4693E0;
+  background: #4693e0;
   border-radius: 10px;
-  color: #F9FAF8;
+  color: #f9faf8;
 }
 .chat__card .card-footer {
   padding: 8px 16px;
-  border-top: 1px solid #E5E6E7;
+  border-top: 1px solid #e5e6e7;
 }
 .chat__card .card-footer .input-group {
   min-height: 45px;
@@ -195,7 +195,7 @@ a {
   min-width: 40px;
   max-width: 40px;
   height: 40px;
-  background: #4693E0;
+  background: #4693e0;
   border-radius: 100% !important;
 }
 .chat__card .card-footer .input-group .btn svg {
@@ -216,7 +216,7 @@ a {
 .image__card .card-header {
   padding-block: 16px;
   padding-inline: 16px;
-  border-bottom: 1px solid #E5E6E7;
+  border-bottom: 1px solid #e5e6e7;
 }
 .image__card .card-header h3 {
   font-size: 20px;
@@ -226,7 +226,7 @@ a {
 }
 .image__card .card-body img {
   -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   border-radius: 10px;
 }
 
@@ -238,7 +238,7 @@ a {
 .video__card .card-header {
   padding-block: 16px;
   padding-inline: 16px;
-  border-bottom: 1px solid #E5E6E7;
+  border-bottom: 1px solid #e5e6e7;
 }
 .video__card .card-header h3 {
   font-size: 20px;
@@ -248,7 +248,7 @@ a {
 }
 .video__card .card-body img {
   -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   border-radius: 10px;
 }
 .video__card .card-body .video-container,
@@ -263,7 +263,7 @@ a {
   width: 100%;
   height: 100%;
   -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
 }
 
 .container-login100 {
@@ -322,7 +322,7 @@ a {
   height: 80px;
   border-radius: 100%;
   -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   transition: all 0.3s ease;
   box-shadow: 0 0 0 0 rgba(70, 147, 224, 0.7);
 }
@@ -336,7 +336,8 @@ a {
 
 /* Breathing animation for idle state */
 @keyframes breathe {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -367,10 +368,9 @@ a {
   box-shadow: 0 0 20px rgba(70, 147, 224, 0.6);
 }
 
-
 /* Ripple effect on click */
 .login100-more-mic-off::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -419,7 +419,8 @@ a {
 }
 
 @keyframes shake {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(0);
   }
   25% {
@@ -481,16 +482,16 @@ a {
 }
 
 .navbar-brand img {
-  width: 230px !important;
+  width: 100px !important;
   height: auto !important;
-  max-height: 240px !important;
+  max-height: 100px !important;
 }
 
 @media (max-width: 768px) {
   .navbar {
     padding: 8px 15px !important;
   }
-  
+
   .navbar-brand img {
     width: 100px !important;
     max-height: 50px !important;
@@ -509,7 +510,7 @@ a {
 .typing-dots span {
   width: 6px;
   height: 6px;
-  background-color: #F9FAF8;
+  background-color: #f9faf8;
   border-radius: 50%;
   animation: typing 1.4s infinite ease-in-out;
 }
@@ -527,7 +528,9 @@ a {
 }
 
 @keyframes typing {
-  0%, 60%, 100% {
+  0%,
+  60%,
+  100% {
     transform: scale(1);
     opacity: 0.5;
   }
@@ -554,7 +557,8 @@ a {
   border-radius: 15px;
 }
 
-#avatarVideo, #fallbackImage {
+#avatarVideo,
+#fallbackImage {
   width: 100% !important;
   height: 106vh !important;
 }
