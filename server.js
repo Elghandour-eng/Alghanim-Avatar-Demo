@@ -388,7 +388,8 @@ app.post("/api/dify-chat", async (req, res) => {
         if (line.startsWith("data: ")) {
           const jsonStr = line.slice(6).trim();
           if (jsonStr === "") continue; // Skip empty data lines
-
+          console.log("jsonStr", jsonStr);
+          console.log("line", line);
           try {
             const data = JSON.parse(jsonStr);
 
