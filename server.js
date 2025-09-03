@@ -393,7 +393,7 @@ app.post("/api/dify-chat", async (req, res) => {
           try {
             const data = JSON.parse(jsonStr);
 
-            if (data.event === "message") {
+            if (data.event === "message" || data.event === "agent_message") {
               fullAnswer += data.answer;
               currentConversationId = data.conversation_id;
 
