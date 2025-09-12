@@ -1,7 +1,7 @@
 import heygenService from "../services/heygen.js";
 import Session from "../models/session.js";
 import config from "../config/config.js";
-
+import { processInactiveSessions } from "../jobs/sessionProcessor.js";
 const heygenController = {
   async getVoices(req, res) {
     try {
@@ -164,6 +164,7 @@ const heygenController = {
       const data = await heygenService.stopSession(sessionId);
       console.log("✅ HeyGen session stopped successfully");
       res.json(data);
+      await processInactiveSessions(sessionId);
     } catch (error) {
       console.error("❌ Error stopping HeyGen session:", error);
       res.status(500).json({ error: "Failed to stop HeyGen session" });
