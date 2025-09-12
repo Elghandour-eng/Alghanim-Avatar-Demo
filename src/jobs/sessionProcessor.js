@@ -82,6 +82,7 @@ export async function processInactiveSessions(sessionId = null) {
   );
 
   const match = { end_time: null };
+  // match.created_at = { $lt: threshold };
   if (sessionId) {
     match.session_id = sessionId;
   }
@@ -95,7 +96,7 @@ export async function processInactiveSessions(sessionId = null) {
         as: "messages",
       },
     },
-    { $match: { "messages.0": { $exists: true } } },
+    { $match: { "messages.1": { $exists: true } } },
     { $addFields: { lastMessageTimestamp: { $max: "$messages.created_at" } } },
     { $match: { lastMessageTimestamp: { $lt: threshold } } },
     { $project: { session_id: 1, _id: 0 } },

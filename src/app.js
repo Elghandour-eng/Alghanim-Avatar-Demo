@@ -8,6 +8,8 @@ import apiRouter from "./routes/api.js";
 import staticsRouter from "./routes/statics.js";
 import labelRouter from "./routes/labels.js";
 import botRouter from "./routes/bots.js";
+import swaggerUi from "swagger-ui-express";
+import specs from "./config/swagger.js";
 
 console.log("🚀 Starting Al Sayer Toyota Avatar Demo Server...");
 console.log("📋 Environment variables loaded");
@@ -16,7 +18,11 @@ console.log(`🔧 Node environment: ${process.env.NODE_ENV || "development"}`);
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: "*", // Adjust this in production for better security
+  })
+);
 app.use(express.json());
 
 // Serve static files (but exclude HTML files from root to avoid conflicts)
@@ -32,6 +38,7 @@ app.use("/", apiRouter);
 app.use("/", staticsRouter);
 app.use("/api/labels", labelRouter);
 app.use("/api/bots", botRouter);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

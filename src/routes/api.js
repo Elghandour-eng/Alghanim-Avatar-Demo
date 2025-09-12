@@ -1,9 +1,35 @@
 import { Router } from "express";
 
 const apiRouter = Router();
-export default apiRouter;
 
-// API endpoint to get Azure Speech configuration
+/**
+ * @swagger
+ * tags:
+ *   name: Azure Speech
+ *   description: API for Azure Speech services
+ */
+
+/**
+ * @swagger
+ * /api/speech-config:
+ *   get:
+ *     summary: Get Azure Speech configuration
+ *     tags: [Azure Speech]
+ *     responses:
+ *       200:
+ *         description: The Azure Speech configuration
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 region:
+ *                   type: string
+ *                 success:
+ *                   type: boolean
+ *       500:
+ *         description: Failed to get speech configuration
+ */
 apiRouter.get("/api/speech-config", (req, res) => {
   console.log(
     "🎤 GET /api/speech-config - Azure Speech configuration requested"
@@ -28,7 +54,27 @@ apiRouter.get("/api/speech-config", (req, res) => {
   }
 });
 
-// API endpoint to get Azure Speech token
+/**
+ * @swagger
+ * /api/speech-token:
+ *   post:
+ *     summary: Get Azure Speech token
+ *     tags: [Azure Speech]
+ *     responses:
+ *       200:
+ *         description: The Azure Speech token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                 region:
+ *                   type: string
+ *       500:
+ *         description: Failed to get speech token
+ */
 apiRouter.post("/api/speech-token", async (req, res) => {
   try {
     const fetch = (await import("node-fetch")).default;
@@ -57,3 +103,5 @@ apiRouter.post("/api/speech-token", async (req, res) => {
     res.status(500).json({ error: "Failed to get speech token" });
   }
 });
+
+export default apiRouter;

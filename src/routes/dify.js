@@ -8,9 +8,46 @@ import Message from "../models/message.js";
 const userConversations = new NodeCache();
 
 const difyRouter = Router();
-export default difyRouter;
 
-// API endpoint to send message to Dify
+/**
+ * @swagger
+ * tags:
+ *   name: Dify
+ *   description: API for Dify chat services
+ */
+
+/**
+ * @swagger
+ * /api/dify-chat:
+ *   post:
+ *     summary: Send a message to Dify chat
+ *     tags: [Dify]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - message
+ *               - userId
+ *             properties:
+ *               message:
+ *                 type: string
+ *               userId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: A streaming response of chat messages
+ *         content:
+ *           text/event-stream:
+ *             schema:
+ *               type: string
+ *       400:
+ *         description: Bad request, missing message or userId
+ *       500:
+ *         description: Failed to process chat message
+ */
 difyRouter.post("/api/dify-chat", async (req, res) => {
   try {
     const { message, userId } = req.body;
@@ -201,3 +238,5 @@ difyRouter.post("/api/dify-chat", async (req, res) => {
     }
   }
 });
+
+export default difyRouter;

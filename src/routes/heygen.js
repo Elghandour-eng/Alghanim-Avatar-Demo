@@ -1,10 +1,38 @@
 import { Router } from "express";
-import heygenService from "../services/Heygen.js";
-import Session from "../models/Session.js";
+import heygenService from "../services/heygen.js";
+import Session from "../models/session.js";
 const heygenRouter = Router();
 
-export default heygenRouter;
+/**
+ * @swagger
+ * tags:
+ *   name: HeyGen
+ *   description: API for HeyGen services
+ */
 
+/**
+ * @swagger
+ * /api/heygen-voices:
+ *   get:
+ *     summary: Get HeyGen voices
+ *     tags: [HeyGen]
+ *     parameters:
+ *       - in: query
+ *         name: language
+ *         schema:
+ *           type: string
+ *         description: The language of the voices
+ *       - in: query
+ *         name: gender
+ *         schema:
+ *           type: string
+ *         description: The gender of the voices
+ *     responses:
+ *       200:
+ *         description: A list of voices
+ *       500:
+ *         description: Failed to fetch HeyGen voices
+ */
 heygenRouter.get("/api/heygen-voices", async (req, res) => {
   try {
     console.log("🎭 GET /api/heygen-voices - Fetching HeyGen voices");
@@ -19,6 +47,24 @@ heygenRouter.get("/api/heygen-voices", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/heygen-avatars:
+ *   get:
+ *     summary: Get HeyGen avatars
+ *     tags: [HeyGen]
+ *     parameters:
+ *       - in: query
+ *         name: gender
+ *         schema:
+ *           type: string
+ *         description: The gender of the avatars
+ *     responses:
+ *       200:
+ *         description: A list of avatars
+ *       500:
+ *         description: Failed to fetch HeyGen avatars
+ */
 heygenRouter.get("/api/heygen-avatars", async (req, res) => {
   try {
     console.log("🎭 GET /api/heygen-avatars - Fetching HeyGen avatars");
@@ -30,7 +76,18 @@ heygenRouter.get("/api/heygen-avatars", async (req, res) => {
   }
 });
 
-// API endpoint to get HeyGen configuration
+/**
+ * @swagger
+ * /api/heygen-config:
+ *   get:
+ *     summary: Get HeyGen configuration
+ *     tags: [HeyGen]
+ *     responses:
+ *       200:
+ *         description: The HeyGen configuration
+ *       500:
+ *         description: Failed to get HeyGen configuration
+ */
 heygenRouter.get("/api/heygen-config", (req, res) => {
   console.log("🎭 GET /api/heygen-config - HeyGen configuration requested");
   console.log(`🔍 Request from IP: ${req.ip || req.connection.remoteAddress}`);
@@ -50,7 +107,36 @@ heygenRouter.get("/api/heygen-config", (req, res) => {
   }
 });
 
-// API endpoint to create HeyGen session
+/**
+ * @swagger
+ * /api/heygen-session:
+ *   post:
+ *     summary: Create a new HeyGen session
+ *     tags: [HeyGen]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - avatarId
+ *               - voiceId
+ *             properties:
+ *               avatarId:
+ *                 type: string
+ *               voiceId:
+ *                 type: string
+ *               botId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: The created session
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Failed to create HeyGen session
+ */
 heygenRouter.post("/api/heygen-session", async (req, res) => {
   try {
     console.log("🎭 POST /api/heygen-session - Creating HeyGen session");
@@ -90,7 +176,34 @@ heygenRouter.post("/api/heygen-session", async (req, res) => {
   }
 });
 
-// API endpoint to start HeyGen session
+/**
+ * @swagger
+ * /api/heygen-start:
+ *   post:
+ *     summary: Start a HeyGen session
+ *     tags: [HeyGen]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - sessionId
+ *               - sdp
+ *             properties:
+ *               sessionId:
+ *                 type: string
+ *               sdp:
+ *                 type: object
+ *     responses:
+ *       200:
+ *         description: Session started
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Failed to start HeyGen session
+ */
 heygenRouter.post("/api/heygen-start", async (req, res) => {
   try {
     console.log("🎭 POST /api/heygen-start - Starting HeyGen session");
@@ -125,7 +238,34 @@ heygenRouter.post("/api/heygen-start", async (req, res) => {
   }
 });
 
-// API endpoint to handle ICE candidates
+/**
+ * @swagger
+ * /api/heygen-ice:
+ *   post:
+ *     summary: Handle ICE candidates
+ *     tags: [HeyGen]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - sessionId
+ *               - candidate
+ *             properties:
+ *               sessionId:
+ *                 type: string
+ *               candidate:
+ *                 type: object
+ *     responses:
+ *       200:
+ *         description: ICE candidate handled
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Failed to handle ICE candidate
+ */
 heygenRouter.post("/api/heygen-ice", async (req, res) => {
   try {
     console.log("🧊 POST /api/heygen-ice - Handling ICE candidate");
@@ -161,7 +301,34 @@ heygenRouter.post("/api/heygen-ice", async (req, res) => {
   }
 });
 
-// API endpoint to make avatar speak
+/**
+ * @swagger
+ * /api/heygen-speak:
+ *   post:
+ *     summary: Make avatar speak
+ *     tags: [HeyGen]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - sessionId
+ *               - text
+ *             properties:
+ *               sessionId:
+ *                 type: string
+ *               text:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Avatar speech task sent
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Failed to make avatar speak
+ */
 heygenRouter.post("/api/heygen-speak", async (req, res) => {
   try {
     console.log("🗣️ POST /api/heygen-speak - Making avatar speak");
@@ -204,7 +371,31 @@ heygenRouter.post("/api/heygen-speak", async (req, res) => {
   }
 });
 
-// API endpoint to stop HeyGen session
+/**
+ * @swagger
+ * /api/heygen-stop:
+ *   post:
+ *     summary: Stop a HeyGen session
+ *     tags: [HeyGen]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - sessionId
+ *             properties:
+ *               sessionId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Session stopped
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Failed to stop HeyGen session
+ */
 heygenRouter.post("/api/heygen-stop", async (req, res) => {
   try {
     console.log("🛑 POST /api/heygen-stop - Stopping HeyGen session");
@@ -238,3 +429,5 @@ heygenRouter.post("/api/heygen-stop", async (req, res) => {
     res.status(500).json({ error: "Failed to stop HeyGen session" });
   }
 });
+
+export default heygenRouter;
