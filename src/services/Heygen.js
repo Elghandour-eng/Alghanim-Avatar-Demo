@@ -1,24 +1,13 @@
-import StreamingAvatar, {
-  AvatarQuality,
-  StreamingEvents,
-} from "@heygen/streaming-avatar/lib/index.esm.js";
 import fetch from "node-fetch";
-import * as axios from "axios";
 import NodeCache from "node-cache";
 import config from "../config/config.js";
 
 const sessionCache = new NodeCache({ stdTTL: 3600 }); // Cache sessions for 1 hour
 const { HEYGEN_API_KEY } = config;
+
 class HeygenService {
   constructor(apiKey) {
     this.apiKey = apiKey;
-    console.log("HeygenService initialized with API Key", this.apiKey);
-    this.streamingAvatar = axios.default.create({
-      baseURL: "https://api.heygen.com",
-      headers: {
-        "x-api-key": this.apiKey,
-      },
-    });
   }
 
   async getVoices(language = null, gender = null) {
@@ -54,6 +43,7 @@ class HeygenService {
     }
     return voices;
   }
+
   async getAvatars(gender = null) {
     const options = {
       method: "GET",
@@ -85,20 +75,85 @@ class HeygenService {
     }
     return avatars;
   }
-  async createSession(avatarId, voiceId) {
-    console.log(
-      "🎭 Creating HeyGen session with Avatar ID:",
-      avatarId,
-      "Voice ID:",
-      voiceId
-    );
-    const response = await this.streamingAvatar.post("/v1/streaming.new", {
-      avatar_name: avatarId,
-      voice: { voice_id: voiceId },
-      quality: "high" /* AvatarQuality.High */,
-    });
 
-    return response.data;
+  async createSession(avatarId, voiceId) {
+    const response = await fetch("https://api.heygen.com/v1/streaming.new", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": this.apiKey,
+      },
+      body: JSON.stringify({
+        avatar_name: avatarId,
+        voice: { voice_id: voiceId },
+        quality: "high",
+      }),
+    });
+    return response.json();
+  }
+
+  async startSession(sessionId, sdp) {
+    const response = await fetch("https://api.heygen.com/v1/streaming.start", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Api-Key": this.apiKey,
+      },
+      body: JSON.stringify({ session_id: sessionId, sdp }),
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HeyGen API error: ${response.status} ${errorText}`);
+    }
+    return response.json();
+  }
+
+  async handleIce(sessionId, candidate) {
+    const response = await fetch("https://api.heygen.com/v1/streaming.ice", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Api-Key": this.apiKey,
+      },
+      body: JSON.stringify({ session_id: sessionId, candidate }),
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HeyGen API error: ${response.status} ${errorText}`);
+    }
+    return response.json();
+  }
+
+  async speak(sessionId, text) {
+    const response = await fetch("https://api.heygen.com/v1/streaming.task", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Api-Key": this.apiKey,
+      },
+      body: JSON.stringify({ session_id: sessionId, text }),
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HeyGen API error: ${response.status} ${errorText}`);
+    }
+    return response.json();
+  }
+
+  async stopSession(sessionId) {
+    const response = await fetch("https://api.heygen.com/v1/streaming.stop", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Api-Key": this.apiKey,
+      },
+      body: JSON.stringify({ session_id: sessionId }),
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HeyGen API error: ${response.status} ${errorText}`);
+    }
+    return response.json();
   }
 }
 

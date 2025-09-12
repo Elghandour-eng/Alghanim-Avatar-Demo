@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import NodeCache from "node-cache";
 import Message from "../models/message.js";
+import config from "../config/config.js";
 
 const userConversations = new NodeCache();
 
@@ -28,7 +29,7 @@ const difyService = {
     const response = await fetch("https://api.dify.ai/v1/chat-messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.DIFY_API_KEY}`,
+        Authorization: `Bearer ${config.DIFY_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(difyPayload),
