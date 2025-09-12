@@ -27,7 +27,7 @@ let isJobRunning = false;
 // Schedule the job to run. This example runs every 10 minutes.
 // Cron syntax: [minute] [hour] [day_of_month] [month] [day_of_week]
 // '*/10 * * * *' means "at every 10th minute"
-cron.schedule("*/1 * * * *", async () => {
+cron.schedule(config.CRON_SCHEDULE, async () => {
   console.log("--------------------------------------------------");
   console.log(`Cron job triggered at: ${new Date().toISOString()}`);
 
