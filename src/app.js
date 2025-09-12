@@ -7,6 +7,7 @@ import difyRouter from "./routes/dify.js";
 import apiRouter from "./routes/api.js";
 import staticsRouter from "./routes/statics.js";
 import labelRouter from "./routes/labels.js";
+import botRouter from "./routes/bots.js";
 
 console.log("🚀 Starting Al Sayer Toyota Avatar Demo Server...");
 console.log("📋 Environment variables loaded");
@@ -30,5 +31,12 @@ app.use("/", difyRouter);
 app.use("/", apiRouter);
 app.use("/", staticsRouter);
 app.use("/api/labels", labelRouter);
+app.use("/api/bots", botRouter);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: "Internal Server Error" });
+});
 
 export default app;

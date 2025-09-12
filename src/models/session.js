@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const sessionSchema = new mongoose.Schema({
   session_id: { type: String, required: true, unique: true },
-  bot_id: { type: String, required: true },
+  bot_id: { type: mongoose.Schema.Types.ObjectId, ref: "Bot", required: true },
   avatar_id: { type: String, required: true },
   voice_id: { type: String, required: true },
   end_time: { type: Date, default: null },
