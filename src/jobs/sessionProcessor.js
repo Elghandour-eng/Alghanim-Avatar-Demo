@@ -4,8 +4,8 @@ import Message from "../models/message.js"; // Adjust path if needed
 import Label from "../models/label.js"; // Adjust path if needed
 import config from "../config/config.js";
 // --- Configuration (loaded from process.env by the scheduler) ---
-const DIFY_API_ENDPOINT = config.DIFY_API_ENDPOINT;
-const DIFY_API_KEY = config.DIFY_WORKFLOW_API_KEY;
+const DIFY_API_ENDPOINT = config.DIFY_API_ENDPOINT + "/v1/workflows/run";
+const DIFY_WORKFLOW_API_KEY = config.DIFY_WORKFLOW_API_KEY;
 const INACTIVITY_THRESHOLD_MINUTES = config.INACTIVITY_THRESHOLD_MINUTES || 10;
 
 // --- Helper Function: Call Dify API ---
@@ -23,24 +23,28 @@ async function callDifyAPI(formattedMessages, allLabels, sessionId) {
     };
     console.log(payload);
     const headers = {
-      Authorization: `Bearer ${DIFY_API_KEY}`,
+      Authorization: `Bearer ${DIFY_WORKFLOW_API_KEY}`,
       "Content-Type": "application/json",
     };
 
     const response = await axios.post(DIFY_API_ENDPOINT, payload, { headers });
-    const apiResult = response.data;
+    const apiResult = await response.data;
+    console.log(`[${sessionId}] Dify API response:`, apiResult);
+
+    const result = JSON.parse(apiResult.data?.outputs?.result);
+    console.log(`[${sessionId}] Dify API response:`, result);
 
     if (
-      apiResult &&
-      apiResult.summary &&
-      apiResult.interest_score &&
-      apiResult.selected_labels
+      result &&
+      result.interest != null &&
+      result.labels != null &&
+      result.summary != null
     ) {
       console.log(`[${sessionId}] Dify API call successful.`);
       return {
-        summary: apiResult.summary,
-        interest: apiResult.interest_score,
-        labels: apiResult.selected_labels,
+        summary: result.summary,
+        interest: result.interest,
+        labels: result.labels,
       };
     } else {
       console.error(
@@ -50,6 +54,7 @@ async function callDifyAPI(formattedMessages, allLabels, sessionId) {
       return null;
     }
   } catch (error) {
+    console.error(error);
     console.error(
       `[${sessionId}] Error calling Dify API:`,
       error.response ? error.response.data : error.message
@@ -80,7 +85,7 @@ export async function processInactiveSessions(sessionId = null) {
   if (sessionId) {
     match.session_id = sessionId;
   }
-  const inactiveSessions = await Session.aggregate([
+  const pipeline = [
     { $match: match },
     {
       $lookup: {
@@ -91,10 +96,15 @@ export async function processInactiveSessions(sessionId = null) {
       },
     },
     { $match: { "messages.0": { $exists: true } } },
-    // { $addFields: { lastMessageTimestamp: { $max: "$messages.timestamp" } } },
-    // { $match: { lastMessageTimestamp: { $lt: threshold } } },
+    { $addFields: { lastMessageTimestamp: { $max: "$messages.created_at" } } },
+    { $match: { lastMessageTimestamp: { $lt: threshold } } },
     { $project: { session_id: 1, _id: 0 } },
-  ]);
+  ];
+  if (sessionId) {
+    pipeline.splice(4, 1);
+  }
+  console.log(JSON.stringify(pipeline, null, 2));
+  const inactiveSessions = await Session.aggregate(pipeline);
   console.log(inactiveSessions);
   console.log(
     `Found ${inactiveSessions.length} inactive sessions., Sessions: ${inactiveSessions}`
