@@ -1,15 +1,27 @@
-// const StreamingAvatar = require("@heygen/streaming-avatar");
-// const { AvatarQuality, StreamingEvents } = require("@heygen/streaming-avatar");
-const NodeCache = require("node-cache");
+import StreamingAvatar, {
+  AvatarQuality,
+  StreamingEvents,
+} from "@heygen/streaming-avatar/lib/index.esm.js";
+import fetch from "node-fetch";
+import * as axios from "axios";
+import NodeCache from "node-cache";
+import config from "../config/config.js";
+
 const sessionCache = new NodeCache({ stdTTL: 3600 }); // Cache sessions for 1 hour
-const { HEYGEN_API_KEY } = require("../config/config");
+const { HEYGEN_API_KEY } = config;
 class HeygenService {
   constructor(apiKey) {
     this.apiKey = apiKey;
+    console.log("HeygenService initialized with API Key", this.apiKey);
+    this.streamingAvatar = axios.default.create({
+      baseURL: "https://api.heygen.com",
+      headers: {
+        "x-api-key": this.apiKey,
+      },
+    });
   }
 
   async getVoices(language = null, gender = null) {
-    const fetch = (await import("node-fetch")).default;
     const options = {
       method: "GET",
       headers: { accept: "application/json", "x-api-key": this.apiKey },
@@ -42,7 +54,22 @@ class HeygenService {
     }
     return voices;
   }
+  async createSession(avatarId, voiceId) {
+    console.log(
+      "🎭 Creating HeyGen session with Avatar ID:",
+      avatarId,
+      "Voice ID:",
+      voiceId
+    );
+    const response = await this.streamingAvatar.post("/v1/streaming.new", {
+      avatar_name: avatarId,
+      voice: { voice_id: voiceId },
+      quality: "high" /* AvatarQuality.High */,
+    });
+
+    return response.data;
+  }
 }
 
 const heygenService = new HeygenService(HEYGEN_API_KEY);
-module.exports = heygenService;
+export default heygenService;

@@ -1,20 +1,35 @@
-const { Router } = require("express");
+import { Router } from "express";
+import fetch from "node-fetch";
+import NodeCache from "node-cache";
+
+import Message from "../models/message.js";
 
 // In-memory store for user conversations
-const userConversations = new Map();
+const userConversations = new NodeCache();
 
 const difyRouter = Router();
-module.exports = difyRouter;
+export default difyRouter;
 
 // API endpoint to send message to Dify
 difyRouter.post("/api/dify-chat", async (req, res) => {
   try {
-    const fetch = (await import("node-fetch")).default;
-    const { message, userId = "default-user" } = req.body;
+    const { message, userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
 
     if (!message) {
       return res.status(400).json({ error: "Message is required" });
     }
+
+    const conversationMessage = new Message({
+      session_id: userId,
+      sender: "USER",
+      message_text: message,
+      screen_type: "chat_box",
+    });
+    await conversationMessage.save();
 
     // Get or create conversation ID for this user
     let conversationId = userConversations.get(userId) || "";
@@ -99,6 +114,15 @@ difyRouter.post("/api/dify-chat", async (req, res) => {
               let parsedAnswer = null;
               let screenType = "default";
               let cleanAnswer = fullAnswer;
+              const conversationMessage = new Message({
+                session_id: userId,
+                sender: "BOT",
+                message_text: fullAnswer,
+                screen_type: "chat_box",
+              });
+              conversationMessage.save().then(() => {
+                console.log("Bot message saved");
+              });
 
               try {
                 // Try to parse as JSON

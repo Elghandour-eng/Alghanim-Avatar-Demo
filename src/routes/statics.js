@@ -1,8 +1,12 @@
-const { Router } = require("express");
-const path = require("path");
+import { Router } from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const staticsRouter = Router();
-module.exports = staticsRouter;
+export default staticsRouter;
 
 // Also serve home.html directly
 staticsRouter.get("/home", (req, res) => {

@@ -1,7 +1,6 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const messageSchema = new mongoose.Schema({
-  message_id: { type: String, required: true, unique: true },
   session_id: { type: String, required: true },
   sender: { type: String, enum: ["USER", "BOT"], required: true },
   message_text: { type: String, required: true },
@@ -12,4 +11,4 @@ const messageSchema = new mongoose.Schema({
 
 const Message = mongoose.model("Message", messageSchema);
 
-module.exports = Message;
+export default Message;

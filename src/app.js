@@ -1,12 +1,11 @@
-const express = require("express");
-const cors = require("cors");
+import express from "express";
+import cors from "cors";
+import "dotenv/config";
 
-require("dotenv").config();
-
-const heygenRouter = require("./routes/heygen.js");
-const difyRouter = require("./routes/dify.js");
-const apiRouter = require("./routes/api.js");
-const staticsRouter = require("./routes/statics.js");
+import heygenRouter from "./routes/heygen.js";
+import difyRouter from "./routes/dify.js";
+import apiRouter from "./routes/api.js";
+import staticsRouter from "./routes/statics.js";
 
 console.log("🚀 Starting Al Sayer Toyota Avatar Demo Server...");
 console.log("📋 Environment variables loaded");
@@ -30,4 +29,4 @@ app.use("/", difyRouter);
 app.use("/", apiRouter);
 app.use("/", staticsRouter);
 
-module.exports = app;
+export default app;

@@ -1,7 +1,7 @@
-const { Router } = require("express");
+import { Router } from "express";
 
 const apiRouter = Router();
-module.exports = apiRouter;
+export default apiRouter;
 
 // API endpoint to get Azure Speech configuration
 apiRouter.get("/api/speech-config", (req, res) => {

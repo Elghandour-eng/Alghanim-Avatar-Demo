@@ -1,8 +1,9 @@
-const { Router } = require("express");
-const heygenService = require("../services/heygen");
+import { Router } from "express";
+import heygenService from "../services/heygen.js";
+import Session from "../models/Session.js";
 const heygenRouter = Router();
 
-module.exports = heygenRouter;
+export default heygenRouter;
 
 heygenRouter.get("/api/heygen-voices", async (req, res) => {
   try {
@@ -51,34 +52,21 @@ heygenRouter.post("/api/heygen-session", async (req, res) => {
         .json({ error: "Avatar ID and Voice ID are required" });
     }
 
-    const requestBody = {
-      quality: "high",
-      avatar_name: avatarId,
-      voice: {
+    const data = await heygenService.createSession(avatarId, voiceId);
+
+    if (data?.data?.session_id) {
+      console.log("🎟️ Session ID:", data.data.session_id);
+      const session = new Session({
+        session_id: data.data.session_id,
+        bot_id: "heygen-bot",
+        avatar_id: avatarId,
         voice_id: voiceId,
-      },
-    };
-
-    console.log("📤 Sending request to HeyGen API...");
-    const response = await fetch("https://api.heygen.com/v1/streaming.new", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Api-Key": process.env.HEYGEN_API_KEY,
-      },
-      body: JSON.stringify(requestBody),
-    });
-
-    console.log(`📥 HeyGen API response status: ${response.status}`);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("❌ HeyGen API error:", errorText);
-      throw new Error(`HeyGen API error: ${response.status} ${errorText}`);
+      });
+      await session.save();
+      console.log("💾 Session saved to database:", session);
     }
 
-    const data = await response.json();
-    console.log("✅ HeyGen session created successfully");
+    console.log("✅ HeyGen session created successfully", data);
 
     if (data.data) {
       res.json(data.data);
