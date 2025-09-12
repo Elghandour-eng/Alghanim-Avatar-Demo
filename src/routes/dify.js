@@ -23,13 +23,13 @@ difyRouter.post("/api/dify-chat", async (req, res) => {
       return res.status(400).json({ error: "Message is required" });
     }
 
-    const conversationMessage = new Message({
+    const userMessage = new Message({
       session_id: userId,
       sender: "USER",
       message_text: message,
       screen_type: "chat_box",
     });
-    await conversationMessage.save();
+    await userMessage.save();
 
     // Get or create conversation ID for this user
     let conversationId = userConversations.get(userId) || "";
@@ -115,6 +115,7 @@ difyRouter.post("/api/dify-chat", async (req, res) => {
               let screenType = "default";
               let cleanAnswer = fullAnswer;
               const conversationMessage = new Message({
+                reply_to: userMessage._id,
                 session_id: userId,
                 sender: "BOT",
                 message_text: fullAnswer,
