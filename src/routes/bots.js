@@ -11,7 +11,12 @@ const botRouter = Router();
  *       type: object
  *       required:
  *         - name
- *         - description
+ *         - dify_api_key
+ *         - dify_summary_api_key
+ *         - bot_type
+ *         - avatar_id
+ *         - voice_id
+ *         - orientation
  *       properties:
  *         id:
  *           type: string
@@ -19,13 +24,34 @@ const botRouter = Router();
  *         name:
  *           type: string
  *           description: The name of the bot
- *         description:
+ *         dify_api_key:
  *           type: string
- *           description: The description of the bot
+ *           description: The Dify API key for the bot
+ *         dify_summary_api_key:
+ *           type: string
+ *           description: The Dify summary API key for the bot
+ *         bot_type:
+ *           type: string
+ *           description: The type of the bot
+ *           enum: [agent, chatbot]
+ *         avatar_id:
+ *           type: string
+ *           description: The ID of the avatar to use
+ *         voice_id:
+ *           type: string
+ *           description: The ID of the voice to use
+ *         orientation:
+ *          type: string
+ *          description: The orientation of the bot
+ *          enum: [portrait, landscape]
  *       example:
- *         id: d5fE_asz
  *         name: "Sales Bot"
- *         description: "A bot to help with sales inquiries"
+ *         dify_api_key: "key-..."
+ *         dify_summary_api_key: "key-..."
+ *         bot_type: "agent"
+ *         avatar_id: "avatar-..."
+ *         voice_id: "voice-..."
+ *         orientation: "portrait"
  */
 
 /**

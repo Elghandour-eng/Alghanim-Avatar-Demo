@@ -18,9 +18,16 @@ const router = Router();
  *         name:
  *           type: string
  *           description: The name of the label
+ *         description:
+ *           type: string
+ *           description: The description of the label
+ *         color:
+ *           type: string
+ *           description: The color of the label
  *       example:
- *         id: d5fE_asz
  *         name: "Inquiry"
+ *         description: "A customer inquiry"
+ *         color: "#ff0000"
  */
 
 /**
