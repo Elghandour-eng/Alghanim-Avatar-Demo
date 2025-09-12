@@ -1,7 +1,22 @@
 const { Router } = require("express");
-
+const heygenService = require("../services/heygen");
 const heygenRouter = Router();
+
 module.exports = heygenRouter;
+
+heygenRouter.get("/api/heygen-voices", async (req, res) => {
+  try {
+    console.log("🎭 GET /api/heygen-voices - Fetching HeyGen voices");
+    const voices = await heygenService.getVoices(
+      req.query.language,
+      req.query.gender
+    );
+    res.json(voices);
+  } catch (error) {
+    console.error("❌ Error fetching HeyGen voices:", error);
+    res.status(500).json({ error: "Failed to fetch HeyGen voices" });
+  }
+});
 
 // API endpoint to get HeyGen configuration
 heygenRouter.get("/api/heygen-config", (req, res) => {
