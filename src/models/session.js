@@ -5,10 +5,10 @@ const sessionSchema = new mongoose.Schema({
   bot_id: { type: String, required: true },
   avatar_id: { type: String, required: true },
   voice_id: { type: String, required: true },
-  start_time: { type: Date, default: Date.now },
-  end_time: { type: Date },
-  summary: { type: String },
-  interest: { type: String },
+  end_time: { type: Date, default: null },
+  summary: { type: String, default: "" },
+  interest: { type: Number, default: null },
+  labels: { type: [String], default: [] },
   created_at: { type: Date, default: Date.now },
 });
 
