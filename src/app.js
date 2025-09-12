@@ -6,6 +6,7 @@ import heygenRouter from "./routes/heygen.js";
 import difyRouter from "./routes/dify.js";
 import apiRouter from "./routes/api.js";
 import staticsRouter from "./routes/statics.js";
+import labelRouter from "./routes/labels.js";
 
 console.log("🚀 Starting Al Sayer Toyota Avatar Demo Server...");
 console.log("📋 Environment variables loaded");
@@ -28,5 +29,6 @@ app.use("/", heygenRouter);
 app.use("/", difyRouter);
 app.use("/", apiRouter);
 app.use("/", staticsRouter);
+app.use("/api/labels", labelRouter);
 
 export default app;
