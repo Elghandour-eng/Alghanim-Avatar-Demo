@@ -2,12 +2,8 @@ import express from "express";
 import cors from "cors";
 import "dotenv/config";
 
-import heygenRouter from "./routes/heygen.js";
-import difyRouter from "./routes/dify.js";
-import apiRouter from "./routes/api.js";
 import staticsRouter from "./routes/statics.js";
-import labelRouter from "./routes/labels.js";
-import botRouter from "./routes/bots.js";
+import apiRouter from "./routes/index.js";
 import swaggerUi from "swagger-ui-express";
 import specs from "./config/swagger.js";
 
@@ -32,12 +28,8 @@ app.use(
   })
 );
 
-app.use("/", heygenRouter);
-app.use("/", difyRouter);
-app.use("/", apiRouter);
 app.use("/", staticsRouter);
-app.use("/api/labels", labelRouter);
-app.use("/api/bots", botRouter);
+app.use("/api", apiRouter);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 // Error handling middleware

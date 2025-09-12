@@ -42,6 +42,6 @@ const difyRouter = Router();
  *       500:
  *         description: Failed to process chat message
  */
-difyRouter.post("/api/dify-chat", difyController.sendMessage);
+difyRouter.post("/dify-chat", difyController.sendMessage);
 
 export default difyRouter;

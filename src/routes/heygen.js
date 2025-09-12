@@ -33,7 +33,7 @@ const heygenRouter = Router();
  *       500:
  *         description: Failed to fetch HeyGen voices
  */
-heygenRouter.get("/api/heygen-voices", heygenController.getVoices);
+heygenRouter.get("/heygen-voices", heygenController.getVoices);
 
 /**
  * @swagger
@@ -53,7 +53,7 @@ heygenRouter.get("/api/heygen-voices", heygenController.getVoices);
  *       500:
  *         description: Failed to fetch HeyGen avatars
  */
-heygenRouter.get("/api/heygen-avatars", heygenController.getAvatars);
+heygenRouter.get("/heygen-avatars", heygenController.getAvatars);
 
 /**
  * @swagger
@@ -67,7 +67,7 @@ heygenRouter.get("/api/heygen-avatars", heygenController.getAvatars);
  *       500:
  *         description: Failed to get HeyGen configuration
  */
-heygenRouter.get("/api/heygen-config", heygenController.getConfig);
+heygenRouter.get("/heygen-config", heygenController.getConfig);
 
 /**
  * @swagger
@@ -99,7 +99,7 @@ heygenRouter.get("/api/heygen-config", heygenController.getConfig);
  *       500:
  *         description: Failed to create HeyGen session
  */
-heygenRouter.post("/api/heygen-session", heygenController.createSession);
+heygenRouter.post("/heygen-session", heygenController.createSession);
 
 /**
  * @swagger
@@ -129,7 +129,7 @@ heygenRouter.post("/api/heygen-session", heygenController.createSession);
  *       500:
  *         description: Failed to start HeyGen session
  */
-heygenRouter.post("/api/heygen-start", heygenController.startSession);
+heygenRouter.post("/heygen-start", heygenController.startSession);
 
 /**
  * @swagger
@@ -159,7 +159,7 @@ heygenRouter.post("/api/heygen-start", heygenController.startSession);
  *       500:
  *         description: Failed to handle ICE candidate
  */
-heygenRouter.post("/api/heygen-ice", heygenController.handleIce);
+heygenRouter.post("/heygen-ice", heygenController.handleIce);
 
 /**
  * @swagger
@@ -189,7 +189,7 @@ heygenRouter.post("/api/heygen-ice", heygenController.handleIce);
  *       500:
  *         description: Failed to make avatar speak
  */
-heygenRouter.post("/api/heygen-speak", heygenController.speak);
+heygenRouter.post("/heygen-speak", heygenController.speak);
 
 /**
  * @swagger
@@ -216,6 +216,6 @@ heygenRouter.post("/api/heygen-speak", heygenController.speak);
  *       500:
  *         description: Failed to stop HeyGen session
  */
-heygenRouter.post("/api/heygen-stop", heygenController.stopSession);
+heygenRouter.post("/heygen-stop", heygenController.stopSession);
 
 export default heygenRouter;

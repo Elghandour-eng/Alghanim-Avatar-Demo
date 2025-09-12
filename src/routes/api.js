@@ -31,7 +31,7 @@ const apiRouter = Router();
  *       500:
  *         description: Failed to get speech configuration
  */
-apiRouter.get("/api/speech-config", apiController.getSpeechConfig);
+apiRouter.get("/speech-config", apiController.getSpeechConfig);
 
 /**
  * @swagger
@@ -54,6 +54,6 @@ apiRouter.get("/api/speech-config", apiController.getSpeechConfig);
  *       500:
  *         description: Failed to get speech token
  */
-apiRouter.post("/api/speech-token", apiController.getSpeechToken);
+apiRouter.post("/speech-token", apiController.getSpeechToken);
 
 export default apiRouter;
