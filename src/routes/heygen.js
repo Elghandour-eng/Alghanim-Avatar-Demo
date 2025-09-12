@@ -1,5 +1,5 @@
 import { Router } from "express";
-import heygenService from "../services/heygen.js";
+import heygenService from "../services/Heygen.js";
 import Session from "../models/Session.js";
 const heygenRouter = Router();
 
@@ -16,6 +16,17 @@ heygenRouter.get("/api/heygen-voices", async (req, res) => {
   } catch (error) {
     console.error("❌ Error fetching HeyGen voices:", error);
     res.status(500).json({ error: "Failed to fetch HeyGen voices" });
+  }
+});
+
+heygenRouter.get("/api/heygen-avatars", async (req, res) => {
+  try {
+    console.log("🎭 GET /api/heygen-avatars - Fetching HeyGen avatars");
+    const avatars = await heygenService.getAvatars(req.query.gender);
+    res.json(avatars);
+  } catch (error) {
+    console.error("❌ Error fetching HeyGen avatars:", error);
+    res.status(500).json({ error: "Failed to fetch HeyGen avatars" });
   }
 });
 

@@ -54,6 +54,37 @@ class HeygenService {
     }
     return voices;
   }
+  async getAvatars(gender = null) {
+    const options = {
+      method: "GET",
+      headers: { accept: "application/json", "x-api-key": this.apiKey },
+    };
+    let avatars = [];
+    if (sessionCache.has("avatars")) {
+      console.log("🗃️ Returning cached avatars");
+      avatars = sessionCache.get("avatars");
+    } else {
+      console.log("🔄 No cached avatars, fetching from HeyGen API");
+      const response = await fetch(
+        "https://api.heygen.com/v2/avatars",
+        options
+      );
+      const data = await response.json();
+      avatars = data?.data?.avatars || [];
+      if (!avatars.length) {
+        throw new Error("No avatars found from HeyGen API");
+      }
+      if (avatars.length) {
+        sessionCache.set("avatars", avatars);
+      }
+    }
+    if (gender) {
+      avatars = avatars.filter(
+        (avatar) => avatar.gender.toLowerCase() === gender.toLowerCase()
+      );
+    }
+    return avatars;
+  }
   async createSession(avatarId, voiceId) {
     console.log(
       "🎭 Creating HeyGen session with Avatar ID:",
