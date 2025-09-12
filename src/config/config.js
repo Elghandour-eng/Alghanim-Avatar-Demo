@@ -8,4 +8,7 @@ module.exports = {
   AVATAR_ID: process.env.AVATAR_ID,
   HEYGEN_API_KEY: process.env.HEYGEN_API_KEY,
   DIFY_API_KEY: process.env.DIFY_API_KEY,
+  db: {
+    uri: process.env.DB_URI,
+  },
 };
