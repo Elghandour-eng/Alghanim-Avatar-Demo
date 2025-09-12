@@ -69,7 +69,7 @@ heygenRouter.post("/api/heygen-session", async (req, res) => {
       console.log("🎟️ Session ID:", data.data.session_id);
       const session = new Session({
         session_id: data.data.session_id,
-        bot_id: "heygen-bot",
+        bot_id: req.body.botId || null,
         avatar_id: avatarId,
         voice_id: voiceId,
       });
