@@ -16,8 +16,176 @@
   <link rel="stylesheet" type="text/css" href="assets/css/style.css">
   <!-- Preload critical images -->
   <link rel="preload" href="/assets/image/sara-chat.png" as="image">
-  <!-- Azure Speech SDK -->
-  <script src="https://aka.ms/csspeech/jsbrowserpackageraw"></script>
+  <!-- Azure Speech SDK with cross-browser compatibility -->
+  <script>
+    // Browser detection and compatibility checks
+    function getBrowserInfo() {
+      const userAgent = navigator.userAgent;
+      const isChrome = /Chrome/.test(userAgent) && /Google Inc/.test(navigator.vendor);
+      const isFirefox = /Firefox/.test(userAgent);
+      const isSafari = /Safari/.test(userAgent) && /Apple Computer/.test(navigator.vendor);
+      const isEdge = /Edg/.test(userAgent);
+      const isOpera = /OPR/.test(userAgent);
+      
+      return {
+        isChrome,
+        isFirefox,
+        isSafari,
+        isEdge,
+        isOpera,
+        userAgent,
+        supportsWebRTC: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia),
+        supportsAudioContext: !!(window.AudioContext || window.webkitAudioContext)
+      };
+    }
+
+    // Function to check if Speech SDK is loaded
+    function checkSpeechSDK() {
+      return typeof window.SpeechSDK !== 'undefined' && 
+             window.SpeechSDK !== null && 
+             typeof window.SpeechSDK.SpeechConfig !== 'undefined';
+    }
+
+    // Function to load Speech SDK via server proxy to avoid CORS issues
+    function loadSpeechSDK() {
+      return new Promise((resolve, reject) => {
+        // Check if already loaded
+        if (checkSpeechSDK()) {
+          console.log('Speech SDK already loaded');
+          resolve();
+          return;
+        }
+
+        const browserInfo = getBrowserInfo();
+        console.log('Browser info:', browserInfo);
+
+        // Check browser compatibility
+        if (!browserInfo.supportsWebRTC) {
+          reject(new Error('Browser does not support WebRTC (required for speech recognition)'));
+          return;
+        }
+
+        const script = document.createElement('script');
+        
+        // Use different loading strategies for different browsers
+        if (browserInfo.isFirefox) {
+          // Firefox sometimes has issues with async loading
+          script.async = false;
+          script.defer = true;
+        } else {
+          script.async = true;
+        }
+        
+        // Use server proxy to avoid CORS issues
+        const proxyUrl = '/api/speech-sdk';
+        
+        console.log(`Loading Speech SDK via server proxy: ${proxyUrl}`);
+        script.src = proxyUrl;
+        
+        script.onload = function() {
+          console.log('Speech SDK script loaded successfully via proxy');
+          
+          // Wait a bit for the SDK to initialize, especially important for non-Safari browsers
+          setTimeout(() => {
+            if (checkSpeechSDK()) {
+              console.log('Speech SDK initialized and ready');
+              resolve();
+            } else {
+              console.error('Speech SDK script loaded but SpeechSDK object not found');
+              reject(new Error('Speech SDK object not available after loading'));
+            }
+          }, browserInfo.isSafari ? 100 : 500); // Safari needs less wait time
+        };
+        
+        script.onerror = function(error) {
+          console.error('Failed to load Speech SDK via proxy:', error);
+          reject(new Error('Failed to load Speech SDK via server proxy'));
+        };
+        
+        // Set timeout for loading
+        const loadTimeout = setTimeout(() => {
+          console.error('Timeout loading Speech SDK via proxy');
+          script.onload = null;
+          script.onerror = null;
+          reject(new Error('Timeout loading Speech SDK'));
+        }, 15000); // 15 second timeout for proxy
+        
+        script.onload = function() {
+          clearTimeout(loadTimeout);
+          console.log('Speech SDK script loaded successfully via proxy');
+          
+          setTimeout(() => {
+            if (checkSpeechSDK()) {
+              console.log('Speech SDK initialized and ready');
+              resolve();
+            } else {
+              console.error('Speech SDK script loaded but SpeechSDK object not found');
+              reject(new Error('Speech SDK object not available after loading'));
+            }
+          }, browserInfo.isSafari ? 100 : 500);
+        };
+        
+        // No need for CORS attributes when using same-origin proxy
+        
+        // Append to head
+        document.head.appendChild(script);
+      });
+    }
+
+    // Load Speech SDK with retry mechanism and browser-specific handling
+    async function initializeSpeechSDKWithRetry(maxRetries = 3, retryDelay = 2000) {
+      const browserInfo = getBrowserInfo();
+      
+      // Adjust retry parameters based on browser
+      if (browserInfo.isFirefox) {
+        maxRetries = 5; // Firefox might need more attempts
+        retryDelay = 3000; // Longer delay for Firefox
+      } else if (browserInfo.isChrome || browserInfo.isEdge) {
+        retryDelay = 1500; // Shorter delay for Chromium-based browsers
+      }
+      
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          console.log(`Attempting to load Speech SDK (attempt ${attempt}/${maxRetries}) - Browser: ${browserInfo.userAgent}`);
+          await loadSpeechSDK();
+          console.log('Speech SDK initialized successfully');
+          
+          // Store successful loading info
+          window.speechSDKLoaded = true;
+          window.speechSDKBrowser = browserInfo;
+          
+          return true;
+        } catch (error) {
+          console.error(`Speech SDK load attempt ${attempt} failed:`, error);
+          
+          if (attempt < maxRetries) {
+            console.log(`Retrying in ${retryDelay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, retryDelay));
+            
+            // Increase delay for subsequent attempts
+            retryDelay = Math.min(retryDelay * 1.5, 10000);
+          } else {
+            console.error('All Speech SDK load attempts failed');
+            console.error('Browser compatibility info:', browserInfo);
+            
+            // Store failure info for debugging
+            window.speechSDKLoaded = false;
+            window.speechSDKError = error.message;
+            window.speechSDKBrowser = browserInfo;
+            
+            return false;
+          }
+        }
+      }
+      return false;
+    }
+
+    // Initialize Speech SDK when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Initializing Speech SDK for browser:', navigator.userAgent);
+      initializeSpeechSDKWithRetry();
+    });
+  </script>
   <style>
     /* Loading Screen Styles */
     #loadingScreen {
@@ -77,6 +245,76 @@
     /* Hide body content initially */
     body.loading .container-fluid {
       visibility: hidden;
+    }
+
+    /* Speech SDK Status Notification */
+    #speechSDKStatus {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 10000;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.3s ease-in-out;
+      max-width: 300px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    #speechSDKStatus.show {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    #speechSDKStatus.success {
+      background: linear-gradient(135deg, #28a745, #20c997);
+    }
+
+    #speechSDKStatus.error {
+      background: linear-gradient(135deg, #dc3545, #fd7e14);
+    }
+
+    #speechSDKStatus.warning {
+      background: linear-gradient(135deg, #ffc107, #fd7e14);
+    }
+
+    #speechSDKStatus.info {
+      background: linear-gradient(135deg, #17a2b8, #6f42c1);
+    }
+
+    /* Mic button states for better user feedback */
+    #micToggle.loading {
+      opacity: 0.7;
+      animation: pulse 1.5s infinite;
+    }
+
+    #micToggle.error {
+      animation: shake 0.5s ease-in-out;
+    }
+
+    #micToggle.listening {
+      box-shadow: 0 0 20px rgba(70, 147, 224, 0.6);
+      animation: listening-pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    @keyframes listening-pulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(70, 147, 224, 0.6); }
+      50% { box-shadow: 0 0 30px rgba(70, 147, 224, 0.9); }
     }
   </style>
 </head>
@@ -260,21 +498,65 @@
       }
 
       // Function to add bot message with typing effect
-      function addBotMessage(message) {
+      function addBotMessage(message, hasMedia = false, mediaUrl = '') {
         const messageDiv = document.createElement("div");
         messageDiv.className = "mb-2 d-flex align-items-start gap-2 justify-content-start";
         const textDiv = document.createElement("div");
-        textDiv.className = "chat-bubble chat-robot d-flex justify-content-center align-items-center";
+        textDiv.className = "chat-bubble chat-robot d-flex flex-column justify-content-center align-items-start";
         messageDiv.appendChild(textDiv);
         chatWrapper.appendChild(messageDiv);
 
-        // Typing effect
+        // Add media content if present
+        if (hasMedia && mediaUrl) {
+          const mediaContainer = document.createElement("div");
+          mediaContainer.className = "media-container mb-2";
+          mediaContainer.style.maxWidth = "100%";
+          
+          if (mediaUrl.includes('.mp4') || mediaUrl.includes('.webm') || mediaUrl.includes('.mov')) {
+            // Video content
+            const video = document.createElement("video");
+            video.src = mediaUrl;
+            video.controls = true;
+            video.style.maxWidth = "100%";
+            video.style.borderRadius = "8px";
+            video.className = "chat-media-video";
+            mediaContainer.appendChild(video);
+          } else if (mediaUrl.includes('.jpg') || mediaUrl.includes('.jpeg') || mediaUrl.includes('.png') || mediaUrl.includes('.gif')) {
+            // Image content
+            const img = document.createElement("img");
+            img.src = mediaUrl;
+            img.style.maxWidth = "100%";
+            img.style.borderRadius = "8px";
+            img.className = "chat-media-image";
+            img.alt = "Media content";
+            mediaContainer.appendChild(img);
+          } else {
+            // Other media types - show as link
+            const link = document.createElement("a");
+            link.href = mediaUrl;
+            link.textContent = "📎 View Media";
+            link.target = "_blank";
+            link.className = "chat-media-link";
+            link.style.color = "#4693E0";
+            link.style.textDecoration = "none";
+            mediaContainer.appendChild(link);
+          }
+          
+          textDiv.appendChild(mediaContainer);
+        }
+
+        // Add text content
+        const textContent = document.createElement("div");
+        textContent.className = "message-text";
+        textDiv.appendChild(textContent);
+
+        // Typing effect for text
         let index = 0;
-        textDiv.textContent = "";
+        textContent.textContent = "";
 
         function typeWriter() {
           if (index < message.length) {
-            textDiv.textContent += message.charAt(index);
+            textContent.textContent += message.charAt(index);
             index++;
             scrollToBottom();
             setTimeout(typeWriter, 30); // Adjust speed here
@@ -386,23 +668,41 @@
                     // We'll wait for the complete message to parse it properly
                     streamingMessage += data.content;
                   } else if (data.type === 'message_end') {
-                    console.log('Message completed:', data.full_message);
+                    console.log('Message completed:', data);
 
-                    // Use the clean answer from the server
                     const finalMessage = data.full_message || streamingMessage;
+                    const hasMedia = data.has_media || false;
+                    const mediaUrl = data.media_url || '';
                     const screenType = data.screen || 'default';
 
-                    // Add the bot message to chat
+                    // Add the bot message to the chat transcript regardless of media
                     addBotMessage(finalMessage);
 
                     // Trigger avatar to speak the message
                     const avatarEvent = new CustomEvent('botMessageReceived', {
-                      detail: { message: finalMessage }
+                      detail: {
+                        message: finalMessage
+                      }
                     });
                     document.dispatchEvent(avatarEvent);
 
-                    // Switch to the appropriate tab based on screen type
-                    switchToTab(screenType);
+                    if (hasMedia && mediaUrl) {
+                      // If there's media, update the image tab and switch to it
+                      const imageTab = document.getElementById('image');
+                      const imageEl = imageTab.querySelector('img');
+                      const titleEl = imageTab.querySelector('h3');
+
+                      if (imageEl && titleEl) {
+                        imageEl.src = mediaUrl;
+                        // You can customize the title, here we'll just say "Image"
+                        // Or extract a title from the message if you have a convention
+                        titleEl.textContent = "Image";
+                      }
+                      switchToTab('image');
+                    } else {
+                      // Otherwise, switch to the tab specified by the screen type (or default to chat)
+                      switchToTab(screenType);
+                    }
 
                   } else if (data.type === 'error') {
                     console.error('Dify error:', data.message);
@@ -510,6 +810,12 @@
 
     // Initialize Azure Speech Recognition
     async function initializeSpeechRecognition() {
+      // Check if Speech SDK is available
+      if (!checkSpeechSDK()) {
+        console.error('Speech SDK not available. Please check your internet connection and try again.');
+        return false;
+      }
+
       if (!speechToken) {
         const tokenReceived = await getSpeechToken();
         if (!tokenReceived) {
@@ -518,11 +824,16 @@
         }
       }
 
-      const speechConfig = SpeechSDK.SpeechConfig.fromAuthorizationToken(speechToken, speechRegion);
-      speechConfig.speechRecognitionLanguage = "ar-SA"; // Arabic (Saudi Arabia)
+      try {
+        const speechConfig = SpeechSDK.SpeechConfig.fromAuthorizationToken(speechToken, speechRegion);
+        speechConfig.speechRecognitionLanguage = "ar-SA"; // Arabic (Saudi Arabia)
 
-      const audioConfig = SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
-      recognizer = new SpeechSDK.SpeechRecognizer(speechConfig, audioConfig);
+        const audioConfig = SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
+        recognizer = new SpeechSDK.SpeechRecognizer(speechConfig, audioConfig);
+      } catch (error) {
+        console.error('Error creating Speech SDK objects:', error);
+        return false;
+      }
 
       // Event handlers
       recognizer.recognizing = function (s, e) {

@@ -5,48 +5,76 @@ Home Directory: C:\Users\a.elghandour
 Current Working Directory: c:\Users\a.elghandour\OneDrive - CEQUENS\Desktop\Ceq_Projects\Alghanim-Avatar-Demo
 Platform: win32
 Architecture: x64
-Node Version: v20.19.0
+Node Version: v22.17.0
 Total Memory: 16GB
-Free Memory: 1GB
+Free Memory: 2GB
 CPU Cores: 12
 
-Current Time: 6/28/2025, 10:31:23 AM (Africa/Cairo, UTC+3:00)
+Current Time: 9/13/2025, 8:17:06 PM (Africa/Cairo, UTC+3:00)
 
 # EDITOR STATE
 
 Visible Files:
+  ..\..\..\..\AppData\Local\Programs\Microsoft VS Code\home.html
+  ..\..\..\..\AppData\Local\Programs\Microsoft VS Code\home.html
+  ..\..\..\..\AppData\Local\Programs\Microsoft VS Code\server.js
+  ..\..\..\..\AppData\Local\Programs\Microsoft VS Code\server.js
+  DIFY_PARSER_README.md
 
 Open Tabs:
+  .env
+  server.js
+  test-dify-parser.js
+  DIFY_PARSER_README.md
+  home.html
+  README.md
+  assets\css\prmpt.txt
+  assets\css\style.css
+  assets\css\style.scss
+  assets\image\logo.png
+  configure-voice.html
+  .gitignore
 
 # WORKSPACE SUMMARY
 
 Important Project Files:
+  package.json
+  .gitignore
   README.md
 
 Files:
+  package.json
+  .gitignore
   README.md
+  .env
   assets/
+  DIFY_PARSER_README.md
   home.html
   index.html
+  package-lock.json
+  server.js
+  test-dify-parser.js
   assets/css/
   assets/fonts/
   assets/image/
   assets/js/
+  assets/fonts/OutfitBold.ttf
+  assets/fonts/OutfitRegular.ttf
   assets/css/bootstrap.min.css
   assets/css/bootstrap.min.css.map
+  assets/css/prmpt.txt
   assets/css/style.css
   assets/css/style.css.map
   assets/css/style.scss
-  assets/fonts/OutfitBold.ttf
-  assets/fonts/OutfitRegular.ttf
-  assets/js/bootstrap.bundle.min.js
-  assets/js/bootstrap.bundle.min.js.map
   assets/image/ai-chat.png
   assets/image/fav-icon.png
   assets/image/img.png
+  assets/image/logo.png
   assets/image/logo.svg
   assets/image/mic-off.svg
   assets/image/sara-chat-ai.png
   assets/image/sara-chat.png
   assets/image/video-mic-bg.mp4
   assets/image/video.mp4
+  assets/js/bootstrap.bundle.min.js
+  assets/js/bootstrap.bundle.min.js.map

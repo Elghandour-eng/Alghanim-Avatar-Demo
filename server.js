@@ -24,6 +24,105 @@ console.log('✅ JSON parsing middleware enabled');
 const userConversations = new Map();
 console.log('💾 User conversations storage initialized');
 
+// Function to parse Dify response format
+function parseDifyResponse(responseData) {
+    try {
+        console.log('🔍 Parsing Dify response:', responseData);
+        
+        // Check if responseData is empty or null
+        if (!responseData || responseData === '') {
+            console.warn('⚠️ Warning: Empty or null Dify response data');
+            return {
+                message: '',
+                is_media: 0,
+                media_url: '',
+                hasMedia: false,
+                isValid: false,
+                error: 'Empty response data'
+            };
+        }
+        
+        // Handle both string and object inputs
+        let parsedData;
+        if (typeof responseData === 'string') {
+            // Trim whitespace and check if string is empty
+            const trimmedData = responseData.trim();
+            if (trimmedData === '') {
+                console.warn('⚠️ Warning: Empty string in Dify response');
+                return {
+                    message: '',
+                    is_media: 0,
+                    media_url: '',
+                    hasMedia: false,
+                    isValid: false,
+                    error: 'Empty string response'
+                };
+            }
+            
+            // Try to parse JSON
+            try {
+                parsedData = JSON.parse(trimmedData);
+            } catch (jsonError) {
+                console.warn('⚠️ Warning: Invalid JSON in Dify response, treating as plain text');
+                // If it's not valid JSON, treat it as a plain text message
+                parsedData = {
+                    message: trimmedData,
+                    is_media: 0,
+                    media_url: ''
+                };
+            }
+        } else if (typeof responseData === 'object' && responseData !== null) {
+            parsedData = responseData;
+        } else {
+            console.warn('⚠️ Warning: Invalid response data type:', typeof responseData);
+            return {
+                message: '',
+                is_media: 0,
+                media_url: '',
+                hasMedia: false,
+                isValid: false,
+                error: 'Invalid response data type'
+            };
+        }
+        
+        // Extract the required fields with safe defaults
+        const result = {
+            message: parsedData.message || '',
+            is_media: parsedData.is_media || 0,
+            media_url: parsedData.media_url || '',
+            hasMedia: (parsedData.is_media === 1 || parsedData.is_media === '1'),
+            isValid: true
+        };
+        
+        // Validate required fields
+        if (!result.message) {
+            console.warn('⚠️ Warning: Dify response missing message field');
+            result.isValid = false;
+        }
+        
+        // Log parsing result
+        console.log(`✅ Dify response parsed successfully:`);
+        console.log(`   📝 Message: "${result.message.substring(0, 100)}${result.message.length > 100 ? '...' : ''}"`);
+        console.log(`   🎬 Has Media: ${result.hasMedia}`);
+        if (result.hasMedia) {
+            console.log(`   🔗 Media URL: ${result.media_url}`);
+        }
+        
+        return result;
+        
+    } catch (error) {
+        console.error('❌ Error parsing Dify response:', error);
+        return {
+            message: '',
+            is_media: 0,
+            media_url: '',
+            hasMedia: false,
+            isValid: false,
+            error: error.message
+        };
+    }
+}
+
 // Serve the main HTML file first (before static middleware)
 console.log('🌐 Setting up route handlers...');
 app.get('/', (req, res) => {
@@ -95,6 +194,64 @@ app.post('/api/speech-token', async (req, res) => {
     } catch (error) {
         console.error('Error getting speech token:', error);
         res.status(500).json({ error: 'Failed to get speech token' });
+    }
+});
+
+// API endpoint to proxy Azure Speech SDK to avoid CORS issues
+app.get('/api/speech-sdk', async (req, res) => {
+    try {
+        console.log('🎤 GET /api/speech-sdk - Proxying Azure Speech SDK');
+        const fetch = (await import('node-fetch')).default;
+        
+        // Try multiple CDN URLs
+        const cdnUrls = [
+            'https://aka.ms/csspeech/jsbrowserpackageraw',
+            // 'https://csspeechstorage.blob.core.windows.net/drop/1.34.0/Microsoft.CognitiveServices.Speech.sdk.bundle.js'
+        ];
+        
+        let sdkContent = null;
+        let successUrl = null;
+        
+        for (const url of cdnUrls) {
+            try {
+                console.log(`📥 Trying to fetch Speech SDK from: ${url}`);
+                const response = await fetch(url, {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                    }
+                });
+                
+                if (response.ok) {
+                    sdkContent = await response.text();
+                    successUrl = url;
+                    console.log(`✅ Successfully fetched Speech SDK from: ${url}`);
+                    break;
+                } else {
+                    console.log(`❌ Failed to fetch from ${url}: ${response.status}`);
+                }
+            } catch (error) {
+                console.log(`❌ Error fetching from ${url}:`, error.message);
+            }
+        }
+        
+        if (sdkContent) {
+            // Set appropriate headers for JavaScript content
+            res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+            res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('X-Content-Type-Options', 'nosniff');
+            
+            // Add a comment to indicate this is proxied
+            const proxiedContent = `// Azure Speech SDK - Proxied through server to avoid CORS issues\n// Original source: ${successUrl}\n\n${sdkContent}`;
+            
+            res.send(proxiedContent);
+            console.log('✅ Speech SDK served successfully via proxy');
+        } else {
+            throw new Error('Failed to fetch Speech SDK from all CDN URLs');
+        }
+    } catch (error) {
+        console.error('❌ Error proxying Speech SDK:', error);
+        res.status(500).json({ error: 'Failed to proxy Speech SDK' });
     }
 });
 
@@ -310,6 +467,39 @@ app.post('/api/heygen-stop', async (req, res) => {
     }
 });
 
+// API endpoint to parse Dify response format
+app.post('/api/parse-dify-response', (req, res) => {
+    try {
+        console.log('🔍 POST /api/parse-dify-response - Parsing Dify response');
+        console.log(`🔍 Request from IP: ${req.ip || req.connection.remoteAddress}`);
+        
+        const { response } = req.body;
+        
+        if (!response) {
+            return res.status(400).json({ error: 'Response data is required' });
+        }
+        
+        // Parse the Dify response
+        const parsedResult = parseDifyResponse(response);
+        
+        // Return the parsed result
+        res.json({
+            success: parsedResult.isValid,
+            data: {
+                message: parsedResult.message,
+                is_media: parsedResult.is_media,
+                media_url: parsedResult.media_url,
+                hasMedia: parsedResult.hasMedia
+            },
+            error: parsedResult.error || null
+        });
+        
+    } catch (error) {
+        console.error('❌ Error in parse-dify-response endpoint:', error);
+        res.status(500).json({ error: 'Failed to parse Dify response' });
+    }
+});
+
 // API endpoint to send message to Dify
 app.post('/api/dify-chat', async (req, res) => {
     try {
@@ -394,23 +584,35 @@ app.post('/api/dify-chat', async (req, res) => {
                                 userConversations.set(userId, currentConversationId);
                             }
                             
-                            // Try to parse the full answer as JSON to extract screen info
-                            let parsedAnswer = null;
+                            // Parse the full answer using our Dify response parser
+                            let parsedDifyResponse = null;
                             let screenType = 'default';
                             let cleanAnswer = fullAnswer;
                             
                             try {
-                                // Try to parse as JSON
-                                parsedAnswer = JSON.parse(fullAnswer);
-                                if (parsedAnswer.answer) {
-                                    cleanAnswer = parsedAnswer.answer;
-                                }
-                                if (parsedAnswer.screen) {
-                                    screenType = parsedAnswer.screen;
+                                // Try to parse as the new Dify response format
+                                parsedDifyResponse = parseDifyResponse(fullAnswer);
+                                if (parsedDifyResponse.isValid) {
+                                    cleanAnswer = parsedDifyResponse.message;
+                                    // Check if it has media
+                                    if (parsedDifyResponse.hasMedia) {
+                                        console.log('📎 Media detected in Dify response');
+                                    }
                                 }
                             } catch (jsonError) {
-                                // If not JSON, use the full answer as is
-                                cleanAnswer = fullAnswer;
+                                // Fallback: try to parse as the old format
+                                try {
+                                    const oldFormat = JSON.parse(fullAnswer);
+                                    if (oldFormat.answer) {
+                                        cleanAnswer = oldFormat.answer;
+                                    }
+                                    if (oldFormat.screen) {
+                                        screenType = oldFormat.screen;
+                                    }
+                                } catch (oldFormatError) {
+                                    // If neither format works, use the full answer as is
+                                    cleanAnswer = fullAnswer;
+                                }
                             }
                             
                             // Send end event with parsed data
@@ -418,7 +620,10 @@ app.post('/api/dify-chat', async (req, res) => {
                                 type: 'message_end',
                                 conversation_id: data.conversation_id,
                                 full_message: cleanAnswer,
-                                screen: screenType
+                                screen: screenType,
+                                has_media: parsedDifyResponse?.hasMedia || false,
+                                media_url: parsedDifyResponse?.media_url || '',
+                                parsed_response: parsedDifyResponse || null
                             })}\n\n`);
                             
                             res.end();
