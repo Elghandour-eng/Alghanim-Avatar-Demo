@@ -127,6 +127,7 @@ a {
   box-shadow: -1px 0px 25px -1px rgba(0, 0, 0, 0.2509803922);
   border-radius: 16px;
   margin: auto;
+  border: 1px solid #fff;
 }
 .chat__card .card-header {
   padding-block: 16px;
@@ -191,16 +192,16 @@ a {
   color: #838789;
 }
 .chat__card .card-footer .input-group .btn {
-  width: 40px;
-  min-width: 40px;
+  width: 30px;
+  min-width: 30px;
   max-width: 40px;
-  height: 40px;
-  background: #4693e0;
-  border-radius: 100% !important;
+  height: 30px;
+  background: #4693e087;
+  border-radius: 10px !important;
 }
 .chat__card .card-footer .input-group .btn svg {
-  height: 18px;
-  width: 18px;
+  height: 13px;
+  width: 13px;
 }
 
 .image__card {
@@ -212,6 +213,9 @@ a {
   left: 50%;
   transform: translate(-50%, -50%);
   width: 100%;
+}
+.image__card svg {
+  color: #797596;
 }
 .image__card .card-header {
   padding-block: 16px;
@@ -227,7 +231,6 @@ a {
 .image__card .card-body img {
   -o-object-fit: cover;
   object-fit: cover;
-  border-radius: 10px;
 }
 
 .video__card {
@@ -551,7 +554,18 @@ a {
   width: 100% !important;
   height: 106vh !important;
 }
-
+@media (min-height: 1900px) and (min-width: 1200px) {
+  #avatarVideo {
+    width: auto !important;
+    height: 71vh !important;
+    margin: 0 -180px;
+  }
+  .image__card {
+    position: absolute;
+    top: 20%;
+    left: 40%;
+  }
+}
 @media (max-width: 768px) {
   #avatarContainer {
     width: 350px;

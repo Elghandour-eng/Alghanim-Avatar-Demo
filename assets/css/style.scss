@@ -139,6 +139,7 @@ a {
     box-shadow: -1px 0px 25px -1px #00000040;
     border-radius: 16px;
     margin: auto;
+    border:1px solid #fff;
     .card-header {
         padding-block: 16px;
         padding-inline: 16px;
@@ -205,18 +206,21 @@ a {
             }
 
             .btn {
-                width: 40px;
-                min-width: 40px;
-                max-width: 40px;
-                height: 40px;
-                background: #4693E0;
-                border-radius: 100% !important;
+                   width: 30px;
+    min-width: 30px;
+    max-width: 40px;
+    height: 30px;
+    background: #4693e087;
+    border-radius: 10px !important;
 
                 svg {
-                    height: 18px;
-                    width: 18px;
+                    height: 13px;
+                    width: 13px;
                 }
             }
+        }
+        span {
+            font-size: 12px;
         }
     }
 }
