@@ -481,20 +481,9 @@ a {
   padding: 10px 20px !important;
 }
 
-.navbar-brand img {
-  width: 100px !important;
-  height: auto !important;
-  max-height: 100px !important;
-}
-
 @media (max-width: 768px) {
   .navbar {
     padding: 8px 15px !important;
-  }
-
-  .navbar-brand img {
-    width: 100px !important;
-    max-height: 50px !important;
   }
 }
 
