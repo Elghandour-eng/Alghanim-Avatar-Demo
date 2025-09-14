@@ -10,26 +10,23 @@ Total Memory: 16GB
 Free Memory: 2GB
 CPU Cores: 12
 
-Current Time: 9/13/2025, 8:17:06 PM (Africa/Cairo, UTC+3:00)
+Current Time: 9/14/2025, 1:57:52 PM (Africa/Cairo, UTC+3:00)
 
 # EDITOR STATE
 
 Visible Files:
-  ..\..\..\..\AppData\Local\Programs\Microsoft VS Code\home.html
-  ..\..\..\..\AppData\Local\Programs\Microsoft VS Code\home.html
-  ..\..\..\..\AppData\Local\Programs\Microsoft VS Code\server.js
-  ..\..\..\..\AppData\Local\Programs\Microsoft VS Code\server.js
-  DIFY_PARSER_README.md
+  home.html
+  home.html
 
 Open Tabs:
   .env
+  assets\css\style.css
+  home.html
   server.js
   test-dify-parser.js
   DIFY_PARSER_README.md
-  home.html
   README.md
   assets\css\prmpt.txt
-  assets\css\style.css
   assets\css\style.scss
   assets\image\logo.png
   configure-voice.html
@@ -50,6 +47,7 @@ Files:
   assets/
   DIFY_PARSER_README.md
   home.html
+  image/
   index.html
   package-lock.json
   server.js
@@ -58,6 +56,7 @@ Files:
   assets/fonts/
   assets/image/
   assets/js/
+  image/home/
   assets/fonts/OutfitBold.ttf
   assets/fonts/OutfitRegular.ttf
   assets/css/bootstrap.min.css
@@ -78,3 +77,8 @@ Files:
   assets/image/video.mp4
   assets/js/bootstrap.bundle.min.js
   assets/js/bootstrap.bundle.min.js.map
+  image/home/1757785782833.png
+  image/home/1757785796698.png
+  image/home/1757785806329.png
+  image/home/1757786509511.png
+  image/home/1757787475086.png

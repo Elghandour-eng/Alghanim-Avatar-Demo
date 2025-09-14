@@ -315,10 +315,93 @@
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.05); }
     }
+
+    /* Pop-up Styles */
+    #sessionPopup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    #sessionPopup.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .popup-content {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+    }
+
+    #sessionPopup.show .popup-content {
+      transform: scale(1);
+    }
+
+    .popup-content h2 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .popup-content p {
+      margin-bottom: 25px;
+      color: #666;
+    }
+
+    .popup-error {
+      color: #dc3545;
+      margin-top: 15px;
+      display: none; /* Hidden by default */
+    }
+
+    #startSessionBtn {
+      background-color: #4693E0;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #startSessionBtn:hover {
+      background-color: #367ac0;
+    }
+
+    #startSessionBtn:disabled {
+      background-color: #a0c8f0;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 
 <body class="loading">
+  <!-- Session Start Pop-up -->
+  <div id="sessionPopup">
+    <div class="popup-content">
+      <h2>Welcome</h2>
+      <p>Click the button below to start your session.</p>
+      <button id="startSessionBtn">Start Session</button>
+      <p id="popupError" class="popup-error"></p>
+    </div>
+  </div>
+
   <!-- Loading Screen -->
   <div id="loadingScreen">
     <div class="loading-spinner"></div>
@@ -1002,7 +1085,7 @@
         this.retryDelay = 2000; // 2 seconds
 
         // Initialize avatar on page load with retry mechanism
-        this.initializeAvatarWithRetry();
+        // this.initializeAvatarWithRetry(); // We will call this manually
       }
 
       updateStatus(message) {
@@ -1072,6 +1155,8 @@
 
       async initializeAvatarWithRetry() {
         this.connectionAttempts++;
+        const startBtn = document.getElementById('startSessionBtn');
+        const errorEl = document.getElementById('popupError');
 
         try {
           this.showLoading();
@@ -1083,6 +1168,7 @@
           if (this.isInitialized) {
             this.updateStatus('Connected');
             this.connectionAttempts = 0; // Reset on success
+            hideStartSessionPopup(); // Hide pop-up on success
 
             // Hide status after 3 seconds
             setTimeout(() => {
@@ -1104,6 +1190,15 @@
             this.updateStatus('Connection failed');
             this.showError('Avatar connection failed. Using fallback image.');
             this.showFallback();
+
+            // Show error in pop-up
+            if (startBtn && errorEl) {
+              startBtn.textContent = 'Try Again';
+              startBtn.disabled = false;
+              errorEl.textContent = 'Failed to connect. Please try again.';
+              errorEl.style.display = 'block';
+              showStartSessionPopup();
+            }
 
             // Hide status after 5 seconds
             setTimeout(() => {
@@ -1224,12 +1319,14 @@
                 this.isConnected = false;
                 this.updateStatus('Disconnected');
                 this.showError('Avatar disconnected');
+                showStartSessionPopup(); // Show pop-up on disconnect
                 break;
               case 'failed':
                 this.isConnected = false;
                 this.updateStatus('Connection failed');
                 this.showFallback();
                 this.showError('Connection failed');
+                showStartSessionPopup(); // Show pop-up on failure
                 break;
             }
           };
@@ -1362,6 +1459,7 @@
         this.isInitialized = false;
         this.isConnected = false;
         this.showFallback();
+        showStartSessionPopup(); // Show pop-up again
       }
 
       // Method to manually retry connection
@@ -1376,27 +1474,61 @@
     // Initialize avatar when page loads
     let heygenAvatar = null;
 
+    // Function to show the session pop-up
+    function showStartSessionPopup() {
+      const popup = document.getElementById('sessionPopup');
+      const startBtn = document.getElementById('startSessionBtn');
+      const errorEl = document.getElementById('popupError');
+
+      if (popup && startBtn && errorEl) {
+        // Reset button state
+        startBtn.textContent = 'Start Session';
+        startBtn.disabled = false;
+        errorEl.style.display = 'none';
+        
+        popup.classList.add('show');
+      }
+    }
+
+    // Function to hide the session pop-up
+    function hideStartSessionPopup() {
+      const popup = document.getElementById('sessionPopup');
+      if (popup) {
+        popup.classList.remove('show');
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
       // Hide loading screen after page is fully loaded
-
       const loadingScreen = document.getElementById('loadingScreen');
       const body = document.body;
 
-
-
-      // Remove loading screen from DOM after transition
       setTimeout(() => {
-        // Add fade-out class to trigger transition
         loadingScreen.classList.add('fade-out');
-
-        // Remove loading class from body to show content
         body.classList.remove('loading');
         loadingScreen.style.display = 'none';
+        showStartSessionPopup(); // Show the pop-up instead of starting immediately
       }, 4000);
 
-
-      // Initialize HeyGen Avatar
+      // Initialize HeyGen Avatar but don't start it yet
       heygenAvatar = new HeyGenAvatar();
+
+      // Add event listener for the start button
+      const startBtn = document.getElementById('startSessionBtn');
+      const errorEl = document.getElementById('popupError');
+      if (startBtn) {
+        startBtn.addEventListener('click', function() {
+          // Set button to loading state
+          startBtn.textContent = 'Connecting...';
+          startBtn.disabled = true;
+          if(errorEl) errorEl.style.display = 'none';
+
+          if (heygenAvatar) {
+            // Manually start the avatar connection process
+            heygenAvatar.initializeAvatarWithRetry();
+          }
+        });
+      }
 
       // Listen for bot messages to make avatar speak
       document.addEventListener('botMessageReceived', function (e) {
