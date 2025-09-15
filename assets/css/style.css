@@ -609,6 +609,15 @@ a {
 }
 
 #startSessionBtn {
+  width: 250px;
+  height: 42px;
+  gap: 6px;
+  opacity: 1;
+  border-radius: 100px;
+  padding-top: 10px;
+  padding-right: 20px;
+  padding-bottom: 10px;
+  padding-left: 20px;
   font-family: Outfit;
   font-weight: 500;
   font-style: Medium;
