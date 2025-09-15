@@ -512,23 +512,31 @@
     </div>
 
     <!-- Chat Interface -->
-    <div id="chatInterface" class="chat-interface">
+    <div class="chat-interface">
       <div class="chat-card">
         <div class="chat-header">
-          <div class="message-container" id="newMessageContainer">
-            <div class="message avatar-message">
-              <div class="message-img">
-                <img src="assets/image/avatar-message.jpg" alt="Avatar" />
-              </div>
-              <div class="message-content">
-                <div class="message-text">
-                  مرحباً! أنا ليلي، مساعدتك الشخصية في كاديلاك الغانم. جاهزة
-                  أساعدك بأي استفسار! شنو تحتاج اليوم؟
-                </div>
-                <div class="message-time" id="currentTime"></div>
-              </div>
+          <div class="message-container" id="newMessageContainer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Interface Image Message -->
+    <div class="chat-interface">
+      <div class="chat-card">
+        <div class="chat-header image-message" id="imageMessageContainer">
+          <div class="image-message-header">
+            <img src="/assets/image/logo-png.png" />
+            <div>
+              <h6>Cadillacalghanim</h6>
+              <span class="small">Kuwait</span>
             </div>
           </div>
+          <img
+            id="dynamicImage"
+            class="image-message-img"
+            src="assets/image/img.png"
+            alt="image"
+          />
         </div>
       </div>
     </div>
@@ -594,13 +602,6 @@
               class="avatar-video"
               autoplay
               muted
-              style="
-                object-fit: contain;
-                z-index: 2;
-                scale: 2;
-                left: 166px !important;
-                top: 250px !important;
-              "
             ></video>
             <!-- HeyGen Avatar Video Container -->
             <div id="avatarContainer" class="position-relative w-100 h-100">
@@ -944,6 +945,18 @@
           const messageContainer = document.getElementById(
             "newMessageContainer"
           );
+          const imageMessageContainer = document.getElementById(
+            "imageMessageContainer"
+          );
+
+          // Ensure message container is visible and hide image message container when user sends message
+          if (messageContainer) {
+            messageContainer.style.display = "flex";
+          }
+          if (imageMessageContainer) {
+            imageMessageContainer.style.display = "none";
+          }
+
           const messageDiv = document.createElement("div");
           messageDiv.className = "message user-message";
 
@@ -1000,74 +1013,34 @@
 
           scrollToNewChatBottom();
 
-          // Add media content if present
+          // Handle media content by switching containers
           if (hasMedia && mediaUrl) {
-            const mediaContainer = document.createElement("div");
-            mediaContainer.className = "media-container mb-2";
-            mediaContainer.style.maxWidth = "100%";
+            const imageMessageContainer = document.getElementById(
+              "imageMessageContainer"
+            );
+            const dynamicImage = document.getElementById("dynamicImage");
 
-            if (
-              mediaUrl.includes(".mp4") ||
-              mediaUrl.includes(".webm") ||
-              mediaUrl.includes(".mov")
-            ) {
-              // Video content
-              const video = document.createElement("video");
-              video.src = mediaUrl;
-              video.controls = true;
-              video.style.maxWidth = "100%";
-              video.style.borderRadius = "8px";
-              video.className = "chat-media-video";
-              mediaContainer.appendChild(video);
-            } else if (
-              mediaUrl.includes(".jpg") ||
-              mediaUrl.includes(".jpeg") ||
-              mediaUrl.includes(".png") ||
-              mediaUrl.includes(".gif")
-            ) {
-              // Image content
-              const img = document.createElement("img");
-              img.src = mediaUrl;
-              img.style.maxWidth = "100%";
-              img.style.borderRadius = "8px";
-              img.className = "chat-media-image";
-              img.alt = "Media content";
-              mediaContainer.appendChild(img);
-            } else {
-              // Other media types - show as link
-              const link = document.createElement("a");
-              link.href = mediaUrl;
-              link.textContent = "📎 View Media";
-              link.target = "_blank";
-              link.className = "chat-media-link";
-              link.style.color = "#4693E0";
-              link.style.textDecoration = "none";
-              mediaContainer.appendChild(link);
+            // Hide message container and show image message container
+            if (messageContainer) {
+              messageContainer.style.display = "none";
+            }
+            if (imageMessageContainer) {
+              imageMessageContainer.style.display = "block";
             }
 
-            textDiv.appendChild(mediaContainer);
-          }
-
-          // Add text content
-          const textContent = document.createElement("div");
-          textContent.className = "message-text";
-          textDiv.appendChild(textContent);
-
-          // Typing effect for text
-          let index = 0;
-          textContent.textContent = "";
-
-          function typeWriter() {
-            if (index < message.length) {
-              textContent.textContent += message.charAt(index);
-              index++;
-              scrollToBottom();
-              setTimeout(typeWriter, 30); // Adjust speed here
+            // Update the dynamic image
+            if (dynamicImage) {
+              dynamicImage.src = mediaUrl;
+            }
+          } else {
+            // Show message container and hide image message container for text messages
+            const imageMessageContainer = document.getElementById(
+              "imageMessageContainer"
+            );
+            if (imageMessageContainer) {
+              imageMessageContainer.style.display = "none";
             }
           }
-
-          typeWriter();
-          return textDiv;
         }
 
         // Function to show typing indicator
