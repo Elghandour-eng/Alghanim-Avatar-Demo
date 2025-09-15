@@ -1,0 +1,108 @@
+/*-----------------------
+    Responsive Media Queries
+-------------------------*/
+
+/* Portrait Orientation */
+@media (orientation: portrait) {
+  .main-logo {
+    position: absolute;
+    inset-block-start: 20px;
+    inset-inline-start: 20px;
+    max-width: 207px;
+    z-index: 10;
+  }
+
+  #sessionPopup {
+    align-items: flex-end !important;
+  }
+
+  .popup-content {
+    width: 100% !important;
+    border-radius: 0 !important;
+    height: 100% !important;
+    max-height: 611px !important;
+    padding: 0 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0 !important;
+  }
+
+  .logo-img {
+    margin-block-start: 123px !important;
+  }
+
+  .popup-content h2 {
+    font-family: "Outfit";
+    font-style: normal;
+    font-weight: 500;
+    font-size: 30px !important;
+    line-height: 130% !important;
+    text-align: center;
+
+    /* Base/Black */
+    color: #202020 !important;
+
+    margin-block-start: 64px !important;
+    margin-block-end: 16px !important;
+  }
+
+  .popup-content p {
+    max-width: 844px !important;
+
+    font-family: "Outfit";
+    font-style: normal;
+    font-weight: 400 !important;
+    font-size: 18px !important;
+    line-height: 150% !important;
+    /* or 27px */
+    text-align: center !important;
+
+    /* Gray/500 */
+    color: #667085 !important;
+
+    margin-block-start: auto !important;
+    margin: 0 !important;
+  }
+
+  .popup-content #startSessionBtn {
+    width: 100%;
+    max-width: 250px !important;
+    height: 42px;
+
+    /* Base/Black */
+    background: #202020;
+    border-radius: 100px !important;
+
+    padding: 0px 2px !important;
+
+    /* Outfit/16/Medium */
+    font-family: "Outfit";
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px !important;
+    line-height: 140%;
+    /* or 22px */
+
+    /* Base/White */
+    color: #ffffff !important;
+    margin-top: 64px !important;
+  }
+
+  .container-fluid {
+    position: relative !important;
+  }
+
+  .avatar-video {
+    position: absolute !important;
+    top: 0 !important;
+    left: -250px !important;
+    /* object-fit: contain !important; */
+    z-index: 2 !important;
+  }
+}
+
+/* Landscape Orientation (Normal) */
+@media (orientation: landscape) {
+}

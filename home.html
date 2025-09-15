@@ -27,6 +27,8 @@
     <!-- style css -->
     <link rel="stylesheet" type="text/css" href="assets/css/style.css" />
     <link rel="stylesheet" type="text/scss" href="assets/css/main.scss" />
+    <!-- responsive css -->
+    <link rel="stylesheet" type="text/css" href="assets/css/responsive.css" />
     <!-- Preload critical images -->
     <link rel="preload" href="/assets/image/sara-chat.png" as="image" />
     <!-- Azure Speech SDK with cross-browser compatibility -->
@@ -387,7 +389,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.7);
+        /* background: rgba(0, 0, 0, 0.7); */
         display: flex;
         justify-content: center;
         align-items: center;
@@ -477,13 +479,6 @@
         background: #ffffff57;
         padding: 0 11px;
       }
-      .fallbackAvatar {
-        background-image: url("assets/image/sara-chat.png");
-        background-size: contain;
-        background-position: center bottom;
-        z-index: 1;
-        background-repeat: no-repeat;
-      }
       @media (min-height: 1900px) and (min-width: 1200px) {
         .login100-more {
           width: calc(100% - 195px);
@@ -503,9 +498,9 @@
     <div id="sessionPopup">
       <div class="popup-content">
         <img
-          src="assets/image/logo_cadillac.png"
+          class="logo-img"
+          src="assets/image/logo-pic.png"
           alt="Cadillac Logo"
-          style="max-width: 150px; margin-bottom: 20px"
         />
         <h2>Welcome to Cadillac AI Avatar</h2>
         <p>
@@ -527,6 +522,7 @@
     </div>
 
     <div class="container-fluid">
+      <img src="assets/image/main-logo.png" alt="Cadillac" class="main-logo" />
       <header>
         <nav class="navbar">
           <a class="navbar-brand" href="#">
@@ -537,24 +533,32 @@
       <div class="limiter w-100 mx-auto">
         <div class="container-login100">
           <div class="login100-more position-relative vh-100">
+            <!-- Placeholder video shown by default -->
+            <video
+              id="fallbackVideo"
+              class="avatar-video"
+              autoplay
+              muted
+              loop
+              playsinline
+              style="object-fit: contain; z-index: 1"
+            >
+              <source
+                src="assets/videos/video-placeholder.mp4"
+                type="video/mp4"
+              />
+            </video>
+
+            <!-- Avatar video (hidden by default) -->
+            <video
+              id="avatarVideo"
+              class="avatar-video"
+              autoplay
+              muted
+              style="object-fit: contain; z-index: 2"
+            ></video>
             <!-- HeyGen Avatar Video Container -->
             <div id="avatarContainer" class="position-relative w-100 h-100">
-              <!-- Fallback image shown by default -->
-              <!--  -->
-              <div
-                id="fallbackImage"
-                class="w-100 h-100 position-absolute bottom-0 start-0 fallbackAvatar"
-              ></div>
-
-              <!-- Avatar video (hidden by default) -->
-              <video
-                id="avatarVideo"
-                class="w-100 h-100 position-absolute bottom-0 start-0"
-                autoplay
-                muted
-                style="object-fit: contain; z-index: 2"
-              ></video>
-
               <!-- Loading indicator -->
               <div
                 id="loadingIndicator"
@@ -1425,7 +1429,7 @@
           this.sessionInfo = null;
           this.peerConnection = null;
           this.avatarVideo = document.getElementById("avatarVideo");
-          this.fallbackImage = document.getElementById("fallbackImage");
+          this.fallbackVideo = document.getElementById("fallbackVideo");
           this.loadingIndicator = document.getElementById("loadingIndicator");
           this.errorIndicator = document.getElementById("errorIndicator");
           this.statusElement = document.getElementById("statusText");
@@ -1494,14 +1498,14 @@
 
         showAvatar() {
           this.avatarVideo.style.display = "block";
-          this.fallbackImage.style.display = "none";
+          this.fallbackVideo.style.display = "none";
           this.hideLoading();
           this.hideError();
         }
 
         showFallback() {
           this.avatarVideo.style.display = "none";
-          this.fallbackImage.style.display = "block";
+          this.fallbackVideo.style.display = "block";
           this.hideLoading();
         }
 
