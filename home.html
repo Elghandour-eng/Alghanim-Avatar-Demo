@@ -436,7 +436,7 @@
       }
 
       #startSessionBtn {
-        background-color: #4693e0;
+        /* background-color: #4693e0; */
         color: white;
         border: none;
         height: 42px;
@@ -448,11 +448,11 @@
       }
 
       #startSessionBtn:hover {
-        background-color: #367ac0;
+        /* background-color: #367ac0; */
       }
 
       #startSessionBtn:disabled {
-        background-color: #a0c8f0;
+        /* background-color: #a0c8f0; */
         cursor: not-allowed;
       }
     </style>
@@ -494,6 +494,17 @@
   </head>
 
   <body class="loading">
+    <!-- Mic Container -->
+    <div id="micContainer" class="mic-container">
+      <div class="mic-frame">
+        <img
+          id="newMicIcon"
+          src="assets/svgs/mic-off.svg"
+          alt="Microphone Icon"
+        />
+      </div>
+    </div>
+
     <!-- Session Start Pop-up -->
     <div id="sessionPopup">
       <div class="popup-content">
@@ -599,25 +610,6 @@
                 >
               </div>
             </div>
-
-            <!-- Mic Toggle Button -->
-            <a
-              class="login100-more-mic-off"
-              id="micToggle"
-              style="z-index: 10; position: relative"
-            >
-              <video
-                autoplay
-                muted
-                loop
-                playsinline
-                id="bgVideo"
-                class="d-none"
-              >
-                <source src="assets/image/video-mic-bg.mp4" type="video/mp4" />
-              </video>
-              <img id="playIcon" src="assets/image/mic-off.svg" alt="icon" />
-            </a>
           </div>
           <div class="wrap-login100 p-l-50 p-r-50 p-t-72 p-b-50">
             <ul class="nav nav-tabs border-0 d-none" id="myTab" role="tablist">
@@ -1174,10 +1166,12 @@
       });
     </script>
     <script>
-      const micToggle = document.getElementById("micToggle");
-      const video = document.getElementById("bgVideo");
-      const image = document.getElementById("playIcon");
       const textInput = document.getElementById("text-message");
+
+      // Mic container elements
+      const micContainer = document.getElementById("micContainer");
+      const micFrame = document.querySelector(".mic-frame");
+      const newMicIcon = document.getElementById("newMicIcon");
 
       let recognizer = null;
       let isListening = false;
@@ -1314,7 +1308,7 @@
       async function startListening() {
         try {
           // Add loading animation
-          micToggle.classList.add("loading");
+          micFrame.classList.add("loading");
 
           // Unmute the avatar video on user interaction to enable audio
           if (
@@ -1331,10 +1325,10 @@
             if (!initialized) {
               console.error("Failed to initialize speech recognition");
               // Add error animation
-              micToggle.classList.remove("loading");
-              micToggle.classList.add("error");
+              micFrame.classList.remove("loading");
+              micFrame.classList.add("error");
               setTimeout(() => {
-                micToggle.classList.remove("error");
+                micFrame.classList.remove("error");
               }, 500);
               return;
             }
@@ -1345,32 +1339,32 @@
             function () {
               console.log("Speech recognition started");
               // Remove loading and add listening animation
-              micToggle.classList.remove("loading");
-              micToggle.classList.add("listening");
+              micFrame.classList.remove("loading");
+              micFrame.classList.add("listening");
             },
             function (err) {
               console.error("Error starting recognition: " + err);
               // Add error animation
-              micToggle.classList.remove("loading");
-              micToggle.classList.add("error");
+              micFrame.classList.remove("loading");
+              micFrame.classList.add("error");
               setTimeout(() => {
-                micToggle.classList.remove("error");
+                micFrame.classList.remove("error");
               }, 500);
               stopListening();
             }
           );
 
-          // Update UI - When listening, show video (mic on)
-          video.classList.remove("d-none");
-          image.classList.add("d-none");
+          // Update UI - When listening, show mic-on icon
+          newMicIcon.src = "assets/svgs/mic-on.svg";
+          micFrame.classList.add("unmuted");
           textInput.placeholder = "Listening...";
         } catch (error) {
           console.error("Error in startListening:", error);
           // Add error animation
-          micToggle.classList.remove("loading");
-          micToggle.classList.add("error");
+          micFrame.classList.remove("loading");
+          micFrame.classList.add("error");
           setTimeout(() => {
-            micToggle.classList.remove("error");
+            micFrame.classList.remove("error");
           }, 500);
           stopListening();
         }
@@ -1391,22 +1385,17 @@
         isListening = false;
 
         // Remove listening animation
-        micToggle.classList.remove("listening", "loading");
+        micFrame.classList.remove("listening", "loading");
 
         // Update UI - When not listening, show mic-off icon
-        video.classList.add("d-none");
-        image.classList.remove("d-none");
+        newMicIcon.src = "assets/svgs/mic-off.svg";
+        micFrame.classList.remove("unmuted");
         textInput.placeholder = "Typing..";
       }
 
-      micToggle.addEventListener("click", function (e) {
+      // Add click functionality to mic container
+      micContainer.addEventListener("click", function (e) {
         e.preventDefault();
-
-        // Add click ripple effect
-        micToggle.classList.add("clicked");
-        setTimeout(() => {
-          micToggle.classList.remove("clicked");
-        }, 600);
 
         if (isListening) {
           stopListening();
