@@ -448,7 +448,7 @@
       }
 
       #startSessionBtn:hover {
-        /* background-color: #367ac0; */
+        background-color: #367ac0;
       }
 
       #startSessionBtn:disabled {
@@ -479,6 +479,12 @@
         background: #ffffff57;
         padding: 0 11px;
       }
+
+      /* Hide old tab system */
+      .tab-content {
+        display: none !important;
+      }
+
       @media (min-height: 1900px) and (min-width: 1200px) {
         .login100-more {
           width: calc(100% - 195px);
@@ -509,26 +515,17 @@
     <div id="chatInterface" class="chat-interface">
       <div class="chat-card">
         <div class="chat-header">
-          <div class="message-container">
+          <div class="message-container" id="newMessageContainer">
             <div class="message avatar-message">
               <div class="message-img">
                 <img src="assets/image/avatar-message.jpg" alt="Avatar" />
               </div>
               <div class="message-content">
                 <div class="message-text">
-                  مرحبًا! أنا آية، مساعدتك من كاديلاك. أقدر أساعدك بمعلومات عن
-                  السيارات، الصيانة، أو العروض الحالية. شنو حاب تعرف اليوم؟
+                  مرحباً! أنا ليلي، مساعدتك الشخصية في كاديلاك الغانم. جاهزة
+                  أساعدك بأي استفسار! شنو تحتاج اليوم؟
                 </div>
-                <div class="message-time">12:19 AM</div>
-              </div>
-            </div>
-
-            <div class="message user-message">
-              <div class="message-content">
-                <div class="message-text">
-                  مرحبًا! شنو احدث السيارات مالتكم اليوم؟
-                </div>
-                <div class="message-time">12:19 AM</div>
+                <div class="message-time" id="currentTime"></div>
               </div>
             </div>
           </div>
@@ -905,32 +902,97 @@
           cardBody.scrollTop = cardBody.scrollHeight;
         }
 
-        // Don't auto-scroll on page load
-
-        // Function to add user message to chat
-        function addUserMessage(message) {
-          const messageDiv = document.createElement("div");
-          messageDiv.className =
-            "mb-2 d-flex align-items-start gap-2 justify-content-start";
-          const textDiv = document.createElement("div");
-          textDiv.className =
-            "chat-bubble chat-human d-flex justify-content-center align-items-center";
-          textDiv.textContent = message;
-          messageDiv.appendChild(textDiv);
-          chatWrapper.appendChild(messageDiv);
-          scrollToBottom();
+        // Scroll to bottom of new chat interface
+        function scrollToNewChatBottom() {
+          const messageContainer = document.getElementById(
+            "newMessageContainer"
+          );
+          if (messageContainer) {
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+          }
         }
 
-        // Function to add bot message with typing effect
-        function addBotMessage(message, hasMedia = false, mediaUrl = "") {
+        // Get current time in 12-hour format
+        function getCurrentTime() {
+          const now = new Date();
+          const hours = now.getHours();
+          const minutes = now.getMinutes();
+          const ampm = hours >= 12 ? "PM" : "AM";
+          const displayHours = hours % 12 || 12;
+          const displayMinutes = minutes < 10 ? "0" + minutes : minutes;
+          return `${displayHours}:${displayMinutes} ${ampm}`;
+        }
+
+        // Set initial time for the welcome message
+        document.addEventListener("DOMContentLoaded", function () {
+          const currentTimeEl = document.getElementById("currentTime");
+          if (currentTimeEl) {
+            currentTimeEl.textContent = getCurrentTime();
+          }
+        });
+
+        // Don't auto-scroll on page load
+
+        // Function to add user message to new chat interface
+        function addUserMessage(message) {
+          const messageContainer = document.getElementById(
+            "newMessageContainer"
+          );
           const messageDiv = document.createElement("div");
-          messageDiv.className =
-            "mb-2 d-flex align-items-start gap-2 justify-content-start";
-          const textDiv = document.createElement("div");
-          textDiv.className =
-            "chat-bubble chat-robot d-flex flex-column justify-content-center align-items-start";
-          messageDiv.appendChild(textDiv);
-          chatWrapper.appendChild(messageDiv);
+          messageDiv.className = "message user-message";
+
+          const messageContent = document.createElement("div");
+          messageContent.className = "message-content";
+
+          const messageText = document.createElement("div");
+          messageText.className = "message-text";
+          messageText.textContent = message;
+
+          const messageTime = document.createElement("div");
+          messageTime.className = "message-time";
+          messageTime.textContent = getCurrentTime();
+
+          messageContent.appendChild(messageText);
+          messageContent.appendChild(messageTime);
+          messageDiv.appendChild(messageContent);
+          messageContainer.appendChild(messageDiv);
+
+          scrollToNewChatBottom();
+        }
+
+        // Function to add bot message to new chat interface
+        function addBotMessage(message, hasMedia = false, mediaUrl = "") {
+          const messageContainer = document.getElementById(
+            "newMessageContainer"
+          );
+          const messageDiv = document.createElement("div");
+          messageDiv.className = "message avatar-message";
+
+          const messageImg = document.createElement("div");
+          messageImg.className = "message-img";
+          const img = document.createElement("img");
+          img.src = "assets/image/avatar-message.jpg";
+          img.alt = "Avatar";
+          messageImg.appendChild(img);
+
+          const messageContent = document.createElement("div");
+          messageContent.className = "message-content";
+
+          const messageText = document.createElement("div");
+          messageText.className = "message-text";
+          messageText.textContent = message;
+
+          const messageTime = document.createElement("div");
+          messageTime.className = "message-time";
+          messageTime.textContent = getCurrentTime();
+
+          messageContent.appendChild(messageText);
+          messageContent.appendChild(messageTime);
+          messageDiv.appendChild(messageImg);
+          messageDiv.appendChild(messageContent);
+          messageContainer.appendChild(messageDiv);
+
+          scrollToNewChatBottom();
 
           // Add media content if present
           if (hasMedia && mediaUrl) {

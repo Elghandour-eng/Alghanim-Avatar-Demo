@@ -203,6 +203,9 @@
     order: 0;
     align-self: stretch;
     flex-grow: 0;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
   }
 
   /* Message Base Styles */
@@ -325,6 +328,25 @@
     flex: none;
     order: 1;
     flex-grow: 0;
+  }
+
+  /* Custom scrollbar for message container */
+  .message-container::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .message-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+
+  .message-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+  }
+
+  .message-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
   }
 }
 
