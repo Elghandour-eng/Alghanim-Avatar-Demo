@@ -590,11 +590,17 @@
 
             <!-- Avatar video (hidden by default) -->
             <video
-              id="avatarVideo"
+              id="newAvatarVideo"
               class="avatar-video"
               autoplay
               muted
-              style="object-fit: contain; z-index: 2"
+              style="
+                object-fit: contain;
+                z-index: 2;
+                scale: 2;
+                left: 166px !important;
+                top: 250px !important;
+              "
             ></video>
             <!-- HeyGen Avatar Video Container -->
             <div id="avatarContainer" class="position-relative w-100 h-100">
@@ -1228,10 +1234,10 @@
           // Unmute avatar on first text submission
           if (
             heygenAvatar &&
-            heygenAvatar.avatarVideo &&
-            heygenAvatar.avatarVideo.muted
+            heygenAvatar.newAvatarVideo &&
+            heygenAvatar.newAvatarVideo.muted
           ) {
-            heygenAvatar.avatarVideo.muted = false;
+            heygenAvatar.newAvatarVideo.muted = false;
             console.log("Avatar unmuted by text submission.");
           }
 
@@ -1406,10 +1412,10 @@
           // Unmute the avatar video on user interaction to enable audio
           if (
             heygenAvatar &&
-            heygenAvatar.avatarVideo &&
-            heygenAvatar.avatarVideo.muted
+            heygenAvatar.newAvatarVideo &&
+            heygenAvatar.newAvatarVideo.muted
           ) {
-            heygenAvatar.avatarVideo.muted = false;
+            heygenAvatar.newAvatarVideo.muted = false;
             console.log("Avatar unmuted by voice input.");
           }
 
@@ -1510,7 +1516,7 @@
         constructor() {
           this.sessionInfo = null;
           this.peerConnection = null;
-          this.avatarVideo = document.getElementById("avatarVideo");
+          this.newAvatarVideo = document.getElementById("newAvatarVideo");
           this.fallbackVideo = document.getElementById("fallbackVideo");
           this.loadingIndicator = document.getElementById("loadingIndicator");
           this.errorIndicator = document.getElementById("errorIndicator");
@@ -1579,14 +1585,14 @@
         }
 
         showAvatar() {
-          this.avatarVideo.style.display = "block";
+          this.newAvatarVideo.style.display = "block";
           this.fallbackVideo.style.display = "none";
           this.hideLoading();
           this.hideError();
         }
 
         showFallback() {
-          this.avatarVideo.style.display = "none";
+          this.newAvatarVideo.style.display = "none";
           this.fallbackVideo.style.display = "block";
           this.hideLoading();
         }
@@ -1722,21 +1728,21 @@
             this.peerConnection.ontrack = (event) => {
               console.log("Received video track");
               if (event.track.kind === "video") {
-                this.avatarVideo.srcObject = event.streams[0];
+                this.newAvatarVideo.srcObject = event.streams[0];
 
                 // Wait for video to be ready before showing
-                this.avatarVideo.onloadedmetadata = () => {
+                this.newAvatarVideo.onloadedmetadata = () => {
                   console.log("Video metadata loaded");
                   this.showAvatar();
                 };
 
-                this.avatarVideo.oncanplay = () => {
+                this.newAvatarVideo.oncanplay = () => {
                   console.log("Video can play");
                   this.showAvatar();
                 };
 
                 // Handle video errors
-                this.avatarVideo.onerror = (error) => {
+                this.newAvatarVideo.onerror = (error) => {
                   console.error("Video error:", error);
                   this.showFallback();
                   this.showError("Video playback error");
