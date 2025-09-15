@@ -573,4 +573,48 @@ a {
   }
 }
 
+/*-----------------------
+    Popup Styles
+-------------------------*/
+.popup-content {
+  width: 802px;
+  height: 341.1853942871094px;
+  gap: 32px;
+  opacity: 1;
+  border-radius: 12px;
+  padding-top: 48px;
+  padding-right: 64px;
+  padding-bottom: 48px;
+  padding-left: 64px;
+}
+
+.popup-content h2 {
+  font-family: Outfit;
+  font-weight: 500;
+  font-style: Medium;
+  font-size: 24px;
+  line-height: 130%;
+  letter-spacing: 0%;
+  text-align: center;
+}
+
+.popup-content p {
+  font-family: Outfit;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 16px;
+  line-height: 140%;
+  letter-spacing: 0%;
+  text-align: center;
+}
+
+#startSessionBtn {
+  font-family: Outfit;
+  font-weight: 500;
+  font-style: Medium;
+  font-size: 16px;
+  line-height: 140%;
+  letter-spacing: 0%;
+}
+
 /*# sourceMappingURL=style.css.map */
