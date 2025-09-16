@@ -1236,6 +1236,10 @@
 
         // Function to send message to Dify
         async function sendToDify(message) {
+          // If mic is on, turn it off immediately when sending a message
+          if (isListening) {
+            stopListening();
+          }
           const typingIndicator = showTypingIndicator();
 
           // Add loading bot message
@@ -2110,10 +2114,22 @@
         }
 
         // Listen for bot messages to make avatar speak
+        let wasListeningBeforeAvatar = false;
         document.addEventListener("botMessageReceived", function (e) {
           const message = e.detail.message;
           if (heygenAvatar && message) {
+            // If mic is on, turn it off before avatar speaks
+            if (isListening) {
+              wasListeningBeforeAvatar = true;
+              stopListening();
+            }
+
             heygenAvatar.speakText(message);
+
+            // If the mic was on before, we now leave it to the user to re-enable it.
+            if (wasListeningBeforeAvatar) {
+              wasListeningBeforeAvatar = false; // Reset flag
+            }
           }
         });
 
