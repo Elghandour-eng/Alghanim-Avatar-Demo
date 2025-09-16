@@ -181,7 +181,6 @@
     gap: 20px;
     &.image-message {
       padding: 0px;
-      border-radius: 0px;
       gap: 0px;
     }
     width: 100%;
@@ -239,7 +238,7 @@
     overflow-x: hidden;
     padding: 0px;
     gap: 20px;
-    width: 1016px;
+    width: 100%;
     flex: none;
     order: 0;
     align-self: stretch;
@@ -256,7 +255,7 @@
     align-items: flex-end;
     padding: 0px;
     gap: 12px;
-    width: 1016px;
+    width: 100%;
     flex: none;
     align-self: stretch;
     flex-grow: 0;
@@ -308,7 +307,7 @@
 
   /* Avatar Message Content */
   .avatar-message .message-content {
-    width: 779px;
+    width: 65%;
     min-height: 129px;
     background: #ffffff;
     border: 1.26923px solid #d0d5dd;
@@ -334,7 +333,7 @@
   }
 
   .user-message .message-content {
-    width: 782px;
+    width: 65%;
     height: 96px;
     background: #f2f4f7;
     backdrop-filter: blur(2.03077px);
@@ -357,12 +356,12 @@
   }
 
   .avatar-message .message-text {
-    width: 739px;
+    width: 100%;
     height: 66px;
   }
 
   .user-message .message-text {
-    width: 742px;
+    width: 100%;
     height: 33px;
   }
 
@@ -553,7 +552,6 @@
     gap: 20px;
     &.image-message {
       padding: 0px;
-      border-radius: 0px;
       gap: 0px;
     }
     width: 1080px;
@@ -718,12 +716,12 @@
 
   .avatar-message .message-text {
     width: 739px;
-    height: 66px;
+    min-height: 66px;
   }
 
   .user-message .message-text {
     width: 742px;
-    height: 33px;
+    min-height: 33px;
   }
 
   /* Message Time */
