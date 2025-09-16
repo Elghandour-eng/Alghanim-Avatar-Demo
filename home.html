@@ -1281,7 +1281,7 @@
             });
 
             if (!response.ok) {
-              throw new Error("Failed to send message to Dify");
+              throw new Error("Failed to send message to PAIR");
             }
 
             removeTypingIndicator();
@@ -1344,7 +1344,7 @@
                         switchToTab(screenType);
                       }
                     } else if (data.type === "error") {
-                      console.error("Dify error:", data.message);
+                      console.error("PAIR error:", data.message);
                       removeTypingIndicator();
                       addBotMessage(
                         "عذراً، حدث خطأ في معالجة رسالتك. يرجى المحاولة مرة أخرى."

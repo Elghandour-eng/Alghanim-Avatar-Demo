@@ -27,11 +27,11 @@ console.log('💾 User conversations storage initialized');
 // Function to parse Dify response format
 function parseDifyResponse(responseData) {
     try {
-        console.log('🔍 Parsing Dify response:', responseData);
+        console.log('🔍 Parsing PAIR response:', responseData);
         
         // Check if responseData is empty or null
         if (!responseData || responseData === '') {
-            console.warn('⚠️ Warning: Empty or null Dify response data');
+            console.warn('⚠️ Warning: Empty or null PAIR response data');
             return {
                 message: '',
                 is_media: 0,
@@ -48,7 +48,7 @@ function parseDifyResponse(responseData) {
             // Trim whitespace and check if string is empty
             const trimmedData = responseData.trim();
             if (trimmedData === '') {
-                console.warn('⚠️ Warning: Empty string in Dify response');
+                console.warn('⚠️ Warning: Empty string in PAI response');
                 return {
                     message: '',
                     is_media: 0,
@@ -63,7 +63,7 @@ function parseDifyResponse(responseData) {
             try {
                 parsedData = JSON.parse(trimmedData);
             } catch (jsonError) {
-                console.warn('⚠️ Warning: Invalid JSON in Dify response, treating as plain text');
+                console.warn('⚠️ Warning: Invalid JSON in PAIR response, treating as plain text');
                 // If it's not valid JSON, treat it as a plain text message
                 parsedData = {
                     message: trimmedData,
@@ -96,12 +96,12 @@ function parseDifyResponse(responseData) {
         
         // Validate required fields
         if (!result.message) {
-            console.warn('⚠️ Warning: Dify response missing message field');
+            console.warn('⚠️ Warning: PAIR response missing message field');
             result.isValid = false;
         }
         
         // Log parsing result
-        console.log(`✅ Dify response parsed successfully:`);
+        console.log(`✅ PAIR response parsed successfully:`);
         console.log(`   📝 Message: "${result.message.substring(0, 100)}${result.message.length > 100 ? '...' : ''}"`);
         console.log(`   🎬 Has Media: ${result.hasMedia}`);
         if (result.hasMedia) {
@@ -496,7 +496,7 @@ app.post("/api/heygen-stop", async (req, res) => {
 // API endpoint to parse Dify response format
 app.post('/api/parse-dify-response', (req, res) => {
     try {
-        console.log('🔍 POST /api/parse-dify-response - Parsing Dify response');
+        console.log('🔍 POST /api/parse-dify-response - Parsing PAIR response');
         console.log(`🔍 Request from IP: ${req.ip || req.connection.remoteAddress}`);
         
         const { response } = req.body;
@@ -521,8 +521,8 @@ app.post('/api/parse-dify-response', (req, res) => {
         });
         
     } catch (error) {
-        console.error('❌ Error in parse-dify-response endpoint:', error);
-        res.status(500).json({ error: 'Failed to parse Dify response' });
+        console.error('❌ Error in parse-PAIR-response endpoint:', error);
+        res.status(500).json({ error: 'Failed to parse PAIR response' });
     }
 });
 
@@ -559,7 +559,7 @@ app.post("/api/dify-chat", async (req, res) => {
 
     if (!response.ok) {
       throw new Error(
-        `Dify API error: ${response.status} ${response.statusText}`
+        `PAIR API error: ${response.status} ${response.statusText}`
       );
     }
 
@@ -624,7 +624,7 @@ app.post("/api/dify-chat", async (req, res) => {
                                     cleanAnswer = parsedDifyResponse.message;
                                     // Check if it has media
                                     if (parsedDifyResponse.hasMedia) {
-                                        console.log('📎 Media detected in Dify response');
+                                        console.log('📎 Media detected in PAIR response');
                                     }
                                 }
                             } catch (jsonError) {
@@ -696,7 +696,7 @@ app.post("/api/dify-chat", async (req, res) => {
       }
     });
   } catch (error) {
-    console.error("Error in Dify chat:", error);
+    console.error("Error in PAIR chat:", error);
     if (!res.headersSent) {
       res.status(500).json({ error: "Failed to process chat message" });
     }
