@@ -960,7 +960,7 @@
         const cardBody = document.querySelector(".card-body");
 
         // Generate a unique user ID for this session
-        const userId = "user_" + Math.random().toString(36).substr(2, 9);
+        let userId = getUserId();
 
         // Scroll to bottom function (removed auto-scroll)
         function scrollToBottom() {
@@ -1276,7 +1276,7 @@
               },
               body: JSON.stringify({
                 message: message,
-                userId: userId,
+                userId: getUserId(),
               }),
             });
 
@@ -1647,6 +1647,22 @@
 
     <!-- HeyGen Avatar Integration Script -->
     <script>
+      // SessionStorage functions for userId management
+      function getUserId() {
+        let userId = sessionStorage.getItem("avatarUserId");
+        if (!userId) {
+          userId = "user_" + Math.random().toString(36).substr(2, 9);
+          sessionStorage.setItem("avatarUserId", userId);
+        }
+        return userId;
+      }
+
+      function generateNewUserId() {
+        const newUserId = "user_" + Math.random().toString(36).substr(2, 9);
+        sessionStorage.setItem("avatarUserId", newUserId);
+        return newUserId;
+      }
+
       class HeyGenAvatar {
         constructor() {
           this.sessionInfo = null;
@@ -1752,6 +1768,13 @@
               // document.getElementById("stopSessionBtn").style.display = "block"; // Show the stop button
               document.body.classList.remove("body-static-video");
               document.body.classList.add("body-gulf-blue");
+
+              // Generate new userId for fresh conversation
+              const newUserId = generateNewUserId();
+              console.log(
+                "🆕 Generated new userId for fresh conversation:",
+                newUserId
+              );
 
               // Hide status after 3 seconds
               setTimeout(() => {
