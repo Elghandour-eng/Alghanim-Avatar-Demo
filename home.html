@@ -474,6 +474,14 @@
         /* background-color: #a0c8f0; */
         cursor: not-allowed;
       }
+
+      .body-static-video {
+        background-color: #4493e3;
+      }
+
+      .body-gulf-blue {
+        background-color: #4693e0;
+      }
     </style>
     <style>
       .chat__card {
@@ -560,9 +568,9 @@
     </style>
   </head>
 
-  <body class="loading">
+  <body class="loading body-static-video">
     <!-- Mic Container -->
-    <div id="micContainer" class="mic-container">
+    <div id="micContainer" class="mic-container" style="display: none">
       <div class="mic-frame">
         <img
           id="newMicIcon"
@@ -575,7 +583,22 @@
     <!-- Chat Interface -->
     <div class="chat-interface">
       <div class="chat-card">
-        <div class="chat-header" id="chatMessageContainer"></div>
+        <div class="chat-header" id="chatMessageContainer">
+          <div class="message-container">
+            <div class="message avatar-message">
+              <div class="message-img">
+                <img src="assets/image/avatar-message.jpg" alt="Avatar" />
+              </div>
+              <div class="message-content">
+                <div class="message-text">
+                  مرحباً! أنا كادي، مساعدتك الشخصية في كاديلاك الغانم. جاهزة
+                  أساعدك بأي استفسار! شنو تحتاج اليوم؟
+                </div>
+                <div class="message-time"></div>
+              </div>
+            </div>
+          </div>
+        </div>
         <!-- Content will be dynamically rendered here -->
       </div>
     </div>
@@ -589,10 +612,6 @@
           alt="Cadillac Logo"
         />
         <h2>Welcome to Cadillac AI Avatar</h2>
-        <p>
-          Welcome aboard. With Cadillac AI Avatar, you’ll enjoy instant answers,
-          tailored recommendations, and seamless guidance, whenever you need it.
-        </p>
         <button id="startSessionBtn">Start Session</button>
         <p id="popupError" class="popup-error"></p>
       </div>
@@ -610,10 +629,11 @@
     <div class="container-fluid">
       <img src="assets/image/main-logo.png" alt="Cadillac" class="main-logo" />
       <header>
-        <nav class="navbar">
+        <nav class="navbar justify-content-between">
           <a class="navbar-brand" href="#">
             <!-- <img src="assets/image/logo.png" alt="Logo" /> -->
           </a>
+          <button id="stopSessionBtn" class="btn btn-danger" style="display: none;">Stop Session</button>
         </nav>
       </header>
 
@@ -829,9 +849,9 @@
               >
                 <div class="image__card bg-white">
                   <div class="card-header d-flex gap-3">
-                    <img src="/assets/image/logo-png.png" />
+                    <img src="/assets/image/assets/logo_cadillac.png" />
                     <div>
-                      <h6>Cadillacalghanim</h6>
+                      <h6>CadillacAlghanim</h6>
                       <span class="small">Kuwait</span>
                     </div>
                   </div>
@@ -1023,9 +1043,9 @@
             // Clear existing content and render image message
             chatMessageContainer.innerHTML = `
               <div class="image-message-header">
-                <img src="/assets/image/logo-png.png" />
+                <img src="/assets/image/logo_cadillac.png" />
                 <div>
-                  <h6>Cadillacalghanim</h6>
+                  <h6>CadillacAlghanim</h6>
                   <span class="small">Kuwait</span>
                 </div>
               </div>
@@ -1106,9 +1126,9 @@
             // Clear existing content and render image message
             chatMessageContainer.innerHTML = `
               <div class="image-message-header">
-                <img src="/assets/image/logo-png.png" />
+                <img src="/assets/image/logo_cadillac.png" />
                 <div>
-                  <h6>Cadillacalghanim</h6>
+                  <h6>CadillacAlghanim</h6>
                   <span class="small">Kuwait</span>
                 </div>
               </div>
@@ -1734,6 +1754,10 @@
               this.updateStatus("Connected");
               this.connectionAttempts = 0; // Reset on success
               hideStartSessionPopup(); // Hide pop-up on success
+              document.getElementById("micContainer").style.display = "block"; // Show mic container
+              document.getElementById("stopSessionBtn").style.display = "block"; // Show the stop button
+              document.body.classList.remove("body-static-video");
+              document.body.classList.add("body-gulf-blue");
 
               // Hide status after 3 seconds
               setTimeout(() => {
@@ -2036,6 +2060,9 @@
           this.isConnected = false;
           this.showFallback();
           showStartSessionPopup(); // Show pop-up again
+          document.getElementById("stopSessionBtn").style.display = "none"; // Hide the stop button
+          document.body.classList.remove("body-gulf-blue");
+          document.body.classList.add("body-static-video");
 
           // Switch back to the chat tab
           switchToTab("chat");
@@ -2077,6 +2104,7 @@
           startBtn.textContent = "Start Session";
           startBtn.disabled = false;
           errorEl.style.display = "none";
+          document.getElementById("micContainer").style.display = "none"; // Hide mic container
 
           popup.classList.add("show");
         }
@@ -2104,6 +2132,16 @@
 
         // Initialize HeyGen Avatar but don't start it yet
         heygenAvatar = new HeyGenAvatar();
+
+        // Add event listener for the stop button
+        const stopBtn = document.getElementById("stopSessionBtn");
+        if (stopBtn) {
+          stopBtn.addEventListener("click", function () {
+            if (heygenAvatar) {
+              heygenAvatar.closeSession();
+            }
+          });
+        }
 
         // Add event listener for the start button
         const startBtn = document.getElementById("startSessionBtn");
