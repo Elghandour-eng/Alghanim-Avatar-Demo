@@ -587,11 +587,11 @@
           <div class="message-container">
             <div class="message avatar-message">
               <div class="message-img">
-                <img src="assets/image/avatar-message.jpg" alt="Avatar" />
+                <!-- <img src="assets/image/avatar-message.jpg" alt="Avatar" /> -->
               </div>
               <div class="message-content">
                 <div class="message-text">
-                  مرحباً! أنا كادي، مساعدتك الشخصية في كاديلاك الغانم. جاهزة
+                  مرحباً! أنا كادي، مساعدتك الشخصية من كاديلاك الغانم. جاهزة
                   أساعدك بأي استفسار! شنو تحتاج اليوم؟
                 </div>
                 <div class="message-time"></div>
@@ -1084,9 +1084,6 @@
             if (isLoading) {
               // Show loading state
               messageDiv.innerHTML = `
-                <div class="message-img">
-                  <img src="assets/image/avatar-message.jpg" alt="Avatar" />
-                </div>
                 <div class="message-content">
                   <div class="message-text loading-message">
                     <span class="typing-indicator">
@@ -1101,9 +1098,6 @@
             } else {
               // Show actual message
               messageDiv.innerHTML = `
-                <div class="message-img">
-                  <img src="assets/image/avatar-message.jpg" alt="Avatar" />
-                </div>
                 <div class="message-content">
                   <div class="message-text">${message}</div>
                   <div class="message-time">${getCurrentTime()}</div>
@@ -1169,9 +1163,6 @@
             if (lastBotMessage) {
               // Replace loading content with actual message
               lastBotMessage.innerHTML = `
-                <div class="message-img">
-                  <img src="assets/image/avatar-message.jpg" alt="Avatar" />
-                </div>
                 <div class="message-content">
                   <div class="message-text">${message}</div>
                   <div class="message-time">${getCurrentTime()}</div>
@@ -1182,9 +1173,6 @@
               const messageDiv = document.createElement("div");
               messageDiv.className = "message avatar-message";
               messageDiv.innerHTML = `
-                <div class="message-img">
-                  <img src="assets/image/avatar-message.jpg" alt="Avatar" />
-                </div>
                 <div class="message-content">
                   <div class="message-text">${message}</div>
                   <div class="message-time">${getCurrentTime()}</div>
@@ -1761,7 +1749,7 @@
               this.connectionAttempts = 0; // Reset on success
               hideStartSessionPopup(); // Hide pop-up on success
               document.getElementById("micContainer").style.display = "block"; // Show mic container
-              document.getElementById("stopSessionBtn").style.display = "block"; // Show the stop button
+              // document.getElementById("stopSessionBtn").style.display = "block"; // Show the stop button
               document.body.classList.remove("body-static-video");
               document.body.classList.add("body-gulf-blue");
 
