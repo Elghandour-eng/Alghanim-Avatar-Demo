@@ -1663,6 +1663,28 @@
         return newUserId;
       }
 
+      function resetChatMessageContainer() {
+        const chatMessageContainer = document.getElementById(
+          "chatMessageContainer"
+        );
+        chatMessageContainer.innerHTML = `
+          <div class="message-container">
+            <div class="message avatar-message">
+              <div class="message-img">
+                <!-- <img src="assets/image/avatar-message.jpg" alt="Avatar" /> -->
+              </div>
+              <div class="message-content">
+                <div class="message-text">
+                  مرحباً! أنا كادي، مساعدتك الشخصية من كاديلاك الغانم. جاهزة
+                  أساعدك بأي استفسار! شنو تحتاج اليوم؟
+                </div>
+                <div class="message-time"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
       class HeyGenAvatar {
         constructor() {
           this.sessionInfo = null;
@@ -1931,6 +1953,7 @@
                   this.updateStatus("Connected");
                   break;
                 case "disconnected":
+                  resetChatMessageContainer();
                   this.isConnected = false;
                   this.updateStatus("Disconnected");
                   this.showError("Avatar disconnected");
@@ -2082,27 +2105,7 @@
           document.body.classList.add("body-static-video");
 
           // Reset chatMessageContainer to initial state
-          const chatMessageContainer = document.getElementById(
-            "chatMessageContainer"
-          );
-          if (chatMessageContainer) {
-            chatMessageContainer.innerHTML = `
-              <div class="message-container">
-                <div class="message avatar-message">
-                  <div class="message-img">
-                    <img src="assets/image/avatar-message.jpg" alt="Avatar" />
-                  </div>
-                  <div class="message-content">
-                    <div class="message-text">
-                      مرحباً! أنا كادي، مساعدتك الشخصية في كاديلاك الغانم. جاهزة
-                      أساعدك بأي استفسار! شنو تحتاج اليوم؟
-                    </div>
-                    <div class="message-time"></div>
-                  </div>
-                </div>
-              </div>
-            `;
-          }
+          resetChatMessageContainer();
 
           // Clear the chat box and restore the initial message
           const chatWrapper = document.querySelector(".chat__wrapper");
