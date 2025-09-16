@@ -168,9 +168,9 @@
     align-items: flex-end;
     pointer-events: none;
   }
-.chat-card {
-  width: 100%;
-}
+  .chat-card {
+    width: 100%;
+  }
   /* Chat Header */
   .chat-header {
     box-sizing: border-box;
@@ -307,7 +307,7 @@
 
   /* Avatar Message Content */
   .avatar-message .message-content {
-     min-width: 65%;
+    min-width: 65%;
     max-width: 90%;
     height: 100%;
     background: #ffffff;
