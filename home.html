@@ -2058,8 +2058,28 @@
           document.body.classList.remove("body-gulf-blue");
           document.body.classList.add("body-static-video");
 
-          // Switch back to the chat tab
-          switchToTab("chat");
+          // Reset chatMessageContainer to initial state
+          const chatMessageContainer = document.getElementById(
+            "chatMessageContainer"
+          );
+          if (chatMessageContainer) {
+            chatMessageContainer.innerHTML = `
+              <div class="message-container">
+                <div class="message avatar-message">
+                  <div class="message-img">
+                    <img src="assets/image/avatar-message.jpg" alt="Avatar" />
+                  </div>
+                  <div class="message-content">
+                    <div class="message-text">
+                      مرحباً! أنا كادي، مساعدتك الشخصية في كاديلاك الغانم. جاهزة
+                      أساعدك بأي استفسار! شنو تحتاج اليوم؟
+                    </div>
+                    <div class="message-time"></div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }
 
           // Clear the chat box and restore the initial message
           const chatWrapper = document.querySelector(".chat__wrapper");
@@ -2067,7 +2087,7 @@
             chatWrapper.innerHTML = `
               <div class="mb-2 d-flex align-items-start gap-2 justify-content-start">
                 <div class="chat-bubble chat-robot d-flex justify-content-center align-items-center">
-                  مرحباً! أنا ليلي، مساعدتك الشخصية في كاديلاك الغانم.
+                  مرحباً! أنا كادي، مساعدتك الشخصية في كاديلاك الغانم.
                   جاهزة أساعدك بأي استفسار! شنو تحتاج اليوم؟
                 </div>
               </div>
