@@ -229,11 +229,8 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-  }
-
-  /* Initially hide image message container */
-  #imageMessageContainer {
-    display: none;
+    display: block;
+    margin: 0 auto;
   }
 
   /* Message Container */
@@ -370,7 +367,6 @@
 
   /* Message Time */
   .message-time {
-    width: 61px;
     height: 21px;
     font-family: "Outfit", "Arial", sans-serif;
     font-style: normal;
@@ -407,6 +403,10 @@
 
 /* Landscape Orientation (Normal) */
 @media (orientation: landscape) {
+  body {
+    background-color: 100vh !important;
+    overflow: hidden !important;
+  }
   .mic-container {
     top: 85%;
     left: 85%;
@@ -597,11 +597,8 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-  }
-
-  /* Initially hide image message container */
-  #imageMessageContainer {
-    display: none;
+    display: block;
+    margin: 0 auto;
   }
 
   /* Message Container */
@@ -729,7 +726,6 @@
 
   /* Message Time */
   .message-time {
-    width: 61px;
     height: 21px;
     font-family: "Outfit", "Arial", sans-serif;
     font-style: normal;
