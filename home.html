@@ -269,7 +269,7 @@
 
       .loading-text {
         color: #ffffff;
-        font-size: 18px;
+        font-size: 22px;
         font-weight: 500;
         text-align: center;
         margin-bottom: 10px;
@@ -277,7 +277,7 @@
 
       .loading-subtext {
         color: rgba(255, 255, 255, 0.8);
-        font-size: 14px;
+        font-size: 18px;
         text-align: center;
       }
 
@@ -597,48 +597,39 @@
           </a>
         </nav>
       </header>
+
+      <!-- Loading indicator -->
+      <div
+        id="loadingIndicator"
+        class="position-absolute top-50 start-50 translate-middle"
+        style="z-index: 4; display: none; text-align: center"
+      >
+        <div class="spinner-border text-light" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <div class="text-light mt-2 text-center">Connecting Avatar...</div>
+      </div>
+
+      <!-- Placeholder video shown by default -->
+      <video
+        id="fallbackVideo"
+        class="avatar-video"
+        autoplay
+        muted
+        loop
+        playsinline
+        style="object-fit: contain; z-index: 1"
+      >
+        <source src="assets/videos/video-placeholder.mp4" type="video/mp4" />
+      </video>
+
+      <!-- Avatar video (hidden by default) -->
+      <video id="newAvatarVideo" class="avatar-video" autoplay muted></video>
       <div class="limiter w-100 mx-auto">
         <div class="container-login100">
           <div class="login100-more position-relative vh-100">
-            <!-- Placeholder video shown by default -->
-            <video
-              id="fallbackVideo"
-              class="avatar-video"
-              autoplay
-              muted
-              loop
-              playsinline
-              style="object-fit: contain; z-index: 1"
-            >
-              <source
-                src="assets/videos/video-placeholder.mp4"
-                type="video/mp4"
-              />
-            </video>
-
-            <!-- Avatar video (hidden by default) -->
-            <video
-              id="newAvatarVideo"
-              class="avatar-video"
-              autoplay
-              muted
-            ></video>
             <!-- HeyGen Avatar Video Container -->
             <div id="avatarContainer" class="position-relative w-100 h-100">
-              <!-- Loading indicator -->
-              <div
-                id="loadingIndicator"
-                class="position-absolute top-50 start-50 translate-middle"
-                style="z-index: 4; display: none"
-              >
-                <div class="spinner-border text-light" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-                <div class="text-light mt-2 text-center">
-                  Connecting Avatar...
-                </div>
-              </div>
-
               <!-- Avatar Status Indicator -->
               <div
                 id="avatarStatus"

@@ -327,7 +327,8 @@
     object-fit: contain;
     z-index: 2;
     scale: 2;
-    left: 166px !important;
+    left: 50% !important;
+    transform: translate(-25%, 0) !important;
     top: 250px !important;
     display: block;
   }
@@ -509,8 +510,8 @@
   .avatar-video {
     position: absolute !important;
     top: 0 !important;
-    left: 40% !important;
-    transform: translate(-25%, 0) !important;
+    left: 50% !important;
+    transform: translate(-50%, 0) !important;
     /* object-fit: contain !important; */
     z-index: 2 !important;
   }
@@ -519,7 +520,8 @@
     object-fit: contain;
     z-index: 2;
     scale: 2;
-    left: 68% !important;
+    left: 50% !important;
+    transform: translate(-25%, 0) !important;
     top: 250px !important;
     display: block;
   }
