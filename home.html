@@ -460,6 +460,48 @@
       .chat__card {
         max-height: 700px;
       }
+
+      /* Loading message styles */
+      .loading-message {
+        display: flex;
+        align-items: center;
+        min-height: 20px;
+      }
+
+      .typing-indicator {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .typing-indicator span {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #838789;
+        animation: typing 1.4s infinite ease-in-out;
+      }
+
+      .typing-indicator span:nth-child(1) {
+        animation-delay: -0.32s;
+      }
+
+      .typing-indicator span:nth-child(2) {
+        animation-delay: -0.16s;
+      }
+
+      @keyframes typing {
+        0%,
+        80%,
+        100% {
+          transform: scale(0.8);
+          opacity: 0.5;
+        }
+        40% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
       .chat__card__icon {
         background: #ffffff69;
         width: 40px;
@@ -927,29 +969,14 @@
             "chatMessageContainer"
           );
 
-          console.log("DEBUG: addUserMessage called with:", message);
-
           // Remove image-message class for user messages
           chatMessageContainer.className = "chat-header";
 
-          // Create message container if it doesn't exist
-          let messageContainer =
-            chatMessageContainer.querySelector(".message-container");
-          if (
-            !messageContainer ||
-            messageContainer.classList.contains("image-message")
-          ) {
-            // If it's an image-message container, clear its content
-            if (messageContainer?.classList?.contains("image-message")) {
-              chatMessageContainer.innerHTML = "";
-              messageContainer.className = "message-container";
-            } else {
-              chatMessageContainer.innerHTML = "";
-              messageContainer = document.createElement("div");
-              messageContainer.className = "message-container";
-              chatMessageContainer.appendChild(messageContainer);
-            }
-          }
+          // Clear all content and create fresh message container
+          chatMessageContainer.innerHTML = "";
+          const messageContainer = document.createElement("div");
+          messageContainer.className = "message-container";
+          chatMessageContainer.appendChild(messageContainer);
 
           // Create and append user message
           const messageDiv = document.createElement("div");
@@ -962,25 +989,21 @@
           `;
 
           messageContainer.appendChild(messageDiv);
-          console.log("DEBUG: User message rendered");
           scrollToNewChatBottom();
         }
 
         // Function to add bot message to new chat interface
-        function addBotMessage(message, hasMedia = false, mediaUrl = "") {
+        function addBotMessage(
+          message,
+          hasMedia = false,
+          mediaUrl = "",
+          isLoading = false
+        ) {
           const chatMessageContainer = document.getElementById(
             "chatMessageContainer"
           );
 
-          console.log("DEBUG: addBotMessage called with:", {
-            message,
-            hasMedia,
-            mediaUrl,
-          });
-
           if (hasMedia && mediaUrl) {
-            console.log("DEBUG: Rendering image message");
-
             // Add image-message class to the chat-header container
             chatMessageContainer.className = "chat-header image-message";
 
@@ -1000,70 +1023,149 @@
                 alt="image"
               />
             `;
-            console.log("DEBUG: Image message rendered, mediaUrl:", mediaUrl);
           } else {
-            console.log("DEBUG: Rendering text message");
-
             // Remove image-message class for text messages
             chatMessageContainer.className = "chat-header";
 
-            // Create message container if it doesn't exist
+            // Get existing message container (should exist from user message)
             let messageContainer =
               chatMessageContainer.querySelector(".message-container");
-            if (
-              !messageContainer ||
-              messageContainer.classList.contains("image-message")
-            ) {
-              // If it's an image-message container, clear its content
-              if (
-                messageContainer &&
-                messageContainer.classList.contains("image-message")
-              ) {
-                messageContainer.innerHTML = "";
-                messageContainer.className = "message-container";
-              } else {
-                messageContainer = document.createElement("div");
-                messageContainer.className = "message-container";
-                chatMessageContainer.appendChild(messageContainer);
-              }
+
+            if (!messageContainer) {
+              // If no container exists, create one
+              messageContainer = document.createElement("div");
+              messageContainer.className = "message-container";
+              chatMessageContainer.appendChild(messageContainer);
             }
 
-            // Create and append bot message
+            // Create bot message
             const messageDiv = document.createElement("div");
             messageDiv.className = "message avatar-message";
-            messageDiv.innerHTML = `
-              <div class="message-img">
-                <img src="assets/image/avatar-message.jpg" alt="Avatar" />
-              </div>
-              <div class="message-content">
-                <div class="message-text">${message}</div>
-                <div class="message-time">${getCurrentTime()}</div>
-              </div>
-            `;
+
+            if (isLoading) {
+              // Show loading state
+              messageDiv.innerHTML = `
+                <div class="message-img">
+                  <img src="assets/image/avatar-message.jpg" alt="Avatar" />
+                </div>
+                <div class="message-content">
+                  <div class="message-text loading-message">
+                    <span class="typing-indicator">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </span>
+                  </div>
+                  <div class="message-time">${getCurrentTime()}</div>
+                </div>
+              `;
+            } else {
+              // Show actual message
+              messageDiv.innerHTML = `
+                <div class="message-img">
+                  <img src="assets/image/avatar-message.jpg" alt="Avatar" />
+                </div>
+                <div class="message-content">
+                  <div class="message-text">${message}</div>
+                  <div class="message-time">${getCurrentTime()}</div>
+                </div>
+              `;
+            }
 
             messageContainer.appendChild(messageDiv);
-            console.log("DEBUG: Text message rendered");
+            scrollToNewChatBottom();
+          }
+        }
+
+        // Function to replace loading message with actual response
+        function replaceLoadingMessage(
+          message,
+          hasMedia = false,
+          mediaUrl = ""
+        ) {
+          const chatMessageContainer = document.getElementById(
+            "chatMessageContainer"
+          );
+          if (hasMedia && mediaUrl) {
+            // Add image-message class to the chat-header container
+            chatMessageContainer.className = "chat-header image-message";
+
+            // Clear existing content and render image message
+            chatMessageContainer.innerHTML = `
+              <div class="image-message-header">
+                <img src="/assets/image/logo-png.png" />
+                <div>
+                  <h6>Cadillacalghanim</h6>
+                  <span class="small">Kuwait</span>
+                </div>
+              </div>
+              <img
+                id="dynamicImage"
+                class="image-message-img"
+                src="${mediaUrl}"
+                alt="image"
+              />
+            `;
+          } else {
+            // Remove image-message class for text messages
+            chatMessageContainer.className = "chat-header";
+
+            // Get existing message container
+            let messageContainer =
+              chatMessageContainer.querySelector(".message-container");
+
+            if (!messageContainer) {
+              // If no container exists, create one
+              messageContainer = document.createElement("div");
+              messageContainer.className = "message-container";
+              chatMessageContainer.appendChild(messageContainer);
+            }
+
+            // Find and replace the loading message (last bot message)
+            const botMessages = messageContainer.querySelectorAll(
+              ".message.avatar-message"
+            );
+            const lastBotMessage = botMessages[botMessages.length - 1];
+
+            if (lastBotMessage) {
+              // Replace loading content with actual message
+              lastBotMessage.innerHTML = `
+                <div class="message-img">
+                  <img src="assets/image/avatar-message.jpg" alt="Avatar" />
+                </div>
+                <div class="message-content">
+                  <div class="message-text">${message}</div>
+                  <div class="message-time">${getCurrentTime()}</div>
+                </div>
+              `;
+            } else {
+              // If no loading message found, create new one
+              const messageDiv = document.createElement("div");
+              messageDiv.className = "message avatar-message";
+              messageDiv.innerHTML = `
+                <div class="message-img">
+                  <img src="assets/image/avatar-message.jpg" alt="Avatar" />
+                </div>
+                <div class="message-content">
+                  <div class="message-text">${message}</div>
+                  <div class="message-time">${getCurrentTime()}</div>
+                </div>
+              `;
+              messageContainer.appendChild(messageDiv);
+            }
+
             scrollToNewChatBottom();
           }
         }
 
         // Helper function to handle bot response with media
         function handleBotResponse(responseData) {
-          console.log("DEBUG: handleBotResponse called with:", responseData);
           const { full_message, has_media, media_url } = responseData;
 
-          console.log("DEBUG: Extracted values:", {
-            full_message,
-            has_media,
-            media_url,
-          });
-
           if (has_media && media_url) {
-            console.log("DEBUG: Calling addBotMessage with image");
             // Show image message
             addBotMessage(full_message, true, media_url);
           } else {
-            console.log("DEBUG: Calling addBotMessage with text");
             // Show text message
             addBotMessage(full_message, false);
           }
@@ -1132,6 +1234,9 @@
         async function sendToDify(message) {
           const typingIndicator = showTypingIndicator();
 
+          // Add loading bot message
+          addBotMessage("", false, "", true);
+
           try {
             const response = await fetch("/api/dify-chat", {
               method: "POST",
@@ -1180,15 +1285,9 @@
                       const hasMedia = data.has_media || false;
                       const mediaUrl = data.media_url || "";
                       const screenType = data.screen || "default";
-                      console.log("DEBUG: Data:", data);
-                      console.log("DEBUG: Extracted values:", {
-                        finalMessage,
-                        hasMedia,
-                        mediaUrl,
-                      });
 
-                      // Add the bot message to the chat transcript regardless of media
-                      addBotMessage(finalMessage, hasMedia, mediaUrl);
+                      // Replace loading message with actual response
+                      replaceLoadingMessage(finalMessage, hasMedia, mediaUrl);
 
                       // Trigger avatar to speak the message
                       const avatarEvent = new CustomEvent(

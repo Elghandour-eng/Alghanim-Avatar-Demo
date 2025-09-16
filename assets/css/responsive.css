@@ -311,7 +311,7 @@
   /* Avatar Message Content */
   .avatar-message .message-content {
     width: 779px;
-    height: 129px;
+    min-height: 129px;
     background: #ffffff;
     border: 1.26923px solid #d0d5dd;
     backdrop-filter: blur(2.03077px);
