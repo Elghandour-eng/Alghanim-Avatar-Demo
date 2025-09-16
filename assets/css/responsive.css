@@ -149,7 +149,7 @@
     left: -250px !important;
     z-index: 2 !important; */
     scale: 0.59;
-    margin-top: -40%;
+    margin-top: -30%;
   }
 
   /* Chat Interface Responsive */
@@ -176,7 +176,7 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    padding: 80px 32px;
+    padding: 15px;
     border-radius: 50px 50px 0px 0px;
     gap: 20px;
     &.image-message {
@@ -184,7 +184,7 @@
       gap: 0px;
     }
     width: 100%;
-    height: 31vh;
+    min-height: 31vh;
     background: #ffffff;
     border-bottom: 1.26923px solid rgba(255, 255, 255, 0.35);
     flex: none;
@@ -307,8 +307,9 @@
 
   /* Avatar Message Content */
   .avatar-message .message-content {
-    width: 65%;
-    min-height: 129px;
+     min-width: 65%;
+    max-width: 90%;
+    height: 100%;
     background: #ffffff;
     border: 1.26923px solid #d0d5dd;
     backdrop-filter: blur(2.03077px);
@@ -329,12 +330,13 @@
     top: 250px !important;
     display: block; */
     scale: 1.18;
-    margin-top: 0;
+    margin-top: 10%;
   }
 
   .user-message .message-content {
-    width: 65%;
-    height: 96px;
+    min-width: 65%;
+    max-width: 90%;
+    height: 100%;
     background: #f2f4f7;
     backdrop-filter: blur(2.03077px);
     border-radius: 16px;
@@ -362,7 +364,7 @@
 
   .user-message .message-text {
     width: 100%;
-    height: 33px;
+    min-height: 33px;
   }
 
   /* Message Time */
