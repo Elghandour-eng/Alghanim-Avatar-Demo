@@ -263,7 +263,7 @@
 
   /* Avatar Message */
   .avatar-message {
-    height: 129px;
+    min-height: 129px;
   }
 
   .message-img {
@@ -359,7 +359,7 @@
 
   .avatar-message .message-text {
     width: 100%;
-    height: 66px;
+    height: 100%;
   }
 
   .user-message .message-text {
@@ -718,12 +718,12 @@
 
   .avatar-message .message-text {
     width: 739px;
-    min-height: 66px;
+    height: 100%;
   }
 
   .user-message .message-text {
     width: 742px;
-    min-height: 33px;
+    height: 100%;
   }
 
   /* Message Time */
