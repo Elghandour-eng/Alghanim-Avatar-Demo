@@ -572,6 +572,11 @@ a {
     height: 250px;
   }
 }
+@media (min-height: 1000px) and (max-width: 1200px) {
+  .logo-img {
+    width: 165px;
+  }
+}
 
 /*-----------------------
     Popup Styles

@@ -5,19 +5,19 @@
 /* Mic Container */
 .mic-container {
   position: absolute;
-  width: 110px;
-  height: 110px;
+  width: 70px;
+  height: 70px;
   z-index: 1000;
-  top: 63%;
-  left: 47%;
+  top: 58%;
+  left: 45%;
   transform: translate(-47%, -63%);
 }
 
 /* Mic Frame */
 .mic-frame {
   position: absolute;
-  width: 111.72px;
-  height: 111.72px;
+  width: 75px;
+  height: 75px;
   left: 34.14px;
   top: 34.13px;
   background: rgba(0, 0, 0, 0.8);
@@ -29,8 +29,8 @@
 }
 
 .mic-frame img {
-  width: 63px;
-  height: 63px;
+  width: 43px;
+  height: 43px;
   filter: brightness(0) invert(1);
 }
 
@@ -59,7 +59,7 @@
     position: absolute;
     inset-block-start: 20px;
     inset-inline-start: 20px;
-    max-width: 207px;
+    max-width: 160px;
     z-index: 10;
   }
 
@@ -71,17 +71,15 @@
     width: 100% !important;
     border-radius: 0 !important;
     height: 100% !important;
-    max-height: 611px !important;
+    max-height: 35vh !important;
     padding: 0 !important;
 
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     gap: 0 !important;
-  }
 
-  .logo-img {
-    margin-block-start: 123px !important;
+    justify-content: space-evenly;
   }
 
   .popup-content h2 {
@@ -89,14 +87,10 @@
     font-style: normal;
     font-weight: 500;
     font-size: 30px !important;
-    line-height: 130% !important;
     text-align: center;
 
     /* Base/Black */
     color: #202020 !important;
-
-    margin-block-start: 64px !important;
-    margin-block-end: 16px !important;
   }
 
   .popup-content p {
@@ -136,24 +130,26 @@
     font-style: normal;
     font-weight: 500;
     font-size: 16px !important;
-    line-height: 140%;
     /* or 22px */
 
     /* Base/White */
     color: #ffffff !important;
-    margin-top: 64px !important;
   }
 
   .container-fluid {
     position: relative !important;
   }
-
+  .avatar-container {
+    display: flex;
+    justify-content: center;
+  }
   .avatar-video {
-    position: absolute !important;
+    /* position: absolute !important;
     top: 0 !important;
     left: -250px !important;
-    /* object-fit: contain !important; */
-    z-index: 2 !important;
+    z-index: 2 !important; */
+    scale: 0.59;
+    margin-top: -40%;
   }
 
   /* Chat Interface Responsive */
@@ -172,7 +168,9 @@
     align-items: flex-end;
     pointer-events: none;
   }
-
+.chat-card {
+  width: 100%;
+}
   /* Chat Header */
   .chat-header {
     box-sizing: border-box;
@@ -186,8 +184,8 @@
       border-radius: 0px;
       gap: 0px;
     }
-    width: 1080px;
-    height: 611px;
+    width: 100%;
+    height: 31vh;
     background: #ffffff;
     border-bottom: 1.26923px solid rgba(255, 255, 255, 0.35);
     flex: none;
@@ -324,13 +322,15 @@
   }
 
   #newAvatarVideo {
-    object-fit: contain;
+    /* object-fit: contain;
     z-index: 2;
     scale: 2;
     left: 50% !important;
     transform: translate(-25%, 0) !important;
     top: 250px !important;
-    display: block;
+    display: block; */
+    scale: 1.18;
+    margin-top: 0;
   }
 
   .user-message .message-content {
@@ -759,5 +759,8 @@
 
   .message-container::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
+  }
+  .mic-container {
+    top: 69%;
   }
 }

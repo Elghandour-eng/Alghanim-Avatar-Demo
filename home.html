@@ -80,7 +80,13 @@
           }
 
           const browserInfo = getBrowserInfo();
-          console.log("Browser info:", browserInfo, "Dimensions:", window.innerWidth, window.innerHeight);
+          console.log(
+            "Browser info:",
+            browserInfo,
+            "Dimensions:",
+            window.innerWidth,
+            window.innerHeight
+          );
 
           // Send browser info to the backend
           fetch("/api/browser-info", {
@@ -624,20 +630,23 @@
       </div>
 
       <!-- Placeholder video shown by default -->
-      <video
-        id="fallbackVideo"
-        class="avatar-video"
-        autoplay
-        muted
-        loop
-        playsinline
-        style="object-fit: contain; z-index: 1"
-      >
-        <source src="assets/videos/video-placeholder.mp4" type="video/mp4" />
-      </video>
+      <div class="avatar-container">
+        <video
+          id="fallbackVideo"
+          class="avatar-video"
+          autoplay
+          muted
+          loop
+          playsinline
+        >
+          <source src="assets/videos/video-placeholder.mp4" type="video/mp4" />
+        </video>
+      </div>
 
       <!-- Avatar video (hidden by default) -->
-      <video id="newAvatarVideo" class="avatar-video" autoplay muted></video>
+      <div class="avatar-container">
+        <video id="newAvatarVideo" class="avatar-video" autoplay muted></video>
+      </div>
       <div class="limiter w-100 mx-auto">
         <div class="container-login100">
           <div class="login100-more position-relative vh-100">
