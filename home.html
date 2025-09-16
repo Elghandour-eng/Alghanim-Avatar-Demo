@@ -80,7 +80,20 @@
           }
 
           const browserInfo = getBrowserInfo();
-          console.log("Browser info:", browserInfo);
+          console.log("Browser info:", browserInfo, "Dimensions:", window.innerWidth, window.innerHeight);
+
+          // Send browser info to the backend
+          fetch("/api/browser-info", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              browserInfo: browserInfo,
+              width: window.innerWidth,
+              height: window.innerHeight,
+            }),
+          });
 
           // Check browser compatibility
           if (!browserInfo.supportsWebRTC) {
@@ -743,7 +756,7 @@
                         <div
                           class="chat-bubble chat-robot d-flex justify-content-center align-items-center"
                         >
-                          مرحباً! أنا ليلي، مساعدتك الشخصية في كاديلاك الغانم.
+                          مرحباً! أنا كادي، مساعدتك الشخصية في كاديلاك الغانم.
                           جاهزة أساعدك بأي استفسار! شنو تحتاج اليوم؟
                         </div>
                       </div>

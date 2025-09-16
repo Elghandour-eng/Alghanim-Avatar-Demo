@@ -131,6 +131,18 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "home.html"));
 });
 
+app.post("/api/screen-dimensions", (req, res) => {
+  const { width, height } = req.body;
+  console.log("Screen dimensions:", { width, height });
+  res.sendStatus(200);
+});
+
+app.post("/api/browser-info", (req, res) => {
+  const { browserInfo, width, height } = req.body;
+  console.log("Browser info:", browserInfo, "Dimensions:", width, height);
+  res.sendStatus(200);
+});
+
 // Serve static files (but exclude HTML files from root to avoid conflicts)
 app.use(
   express.static(".", {

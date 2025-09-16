@@ -5,23 +5,24 @@ Home Directory: C:\Users\a.elghandour
 Current Working Directory: c:\Users\a.elghandour\OneDrive - CEQUENS\Desktop\Ceq_Projects\Alghanim-Avatar-Demo
 Platform: win32
 Architecture: x64
-Node Version: v22.17.0
+Node Version: v22.18.0
 Total Memory: 16GB
-Free Memory: 2GB
+Free Memory: 1GB
 CPU Cores: 12
 
-Current Time: 9/14/2025, 1:57:52 PM (Africa/Cairo, UTC+3:00)
+Current Time: 9/16/2025, 10:06:54 AM (Africa/Cairo, UTC+3:00)
 
 # EDITOR STATE
 
 Visible Files:
-  home.html
-  home.html
+  server.js
 
 Open Tabs:
   .env
-  assets\css\style.css
+  assets\image\logo_cadillac.png
   home.html
+  .roo\mcp.json
+  assets\css\style.css
   server.js
   test-dify-parser.js
   DIFY_PARSER_README.md
@@ -52,24 +53,37 @@ Files:
   package-lock.json
   server.js
   test-dify-parser.js
+  image/home/
   assets/css/
   assets/fonts/
   assets/image/
   assets/js/
-  image/home/
-  assets/fonts/OutfitBold.ttf
-  assets/fonts/OutfitRegular.ttf
+  assets/svgs/
+  assets/videos/
+  image/home/1757785782833.png
+  image/home/1757785796698.png
+  image/home/1757785806329.png
+  image/home/1757786509511.png
+  image/home/1757787475086.png
   assets/css/bootstrap.min.css
   assets/css/bootstrap.min.css.map
   assets/css/prmpt.txt
+  assets/css/responsive.css
   assets/css/style.css
   assets/css/style.css.map
   assets/css/style.scss
+  assets/fonts/OutfitBold.ttf
+  assets/fonts/OutfitRegular.ttf
   assets/image/ai-chat.png
+  assets/image/avatar-message.jpg
   assets/image/fav-icon.png
   assets/image/img.png
+  assets/image/logo-pic.png
+  assets/image/logo-png.png
   assets/image/logo.png
   assets/image/logo.svg
+  assets/image/logo_cadillac.png
+  assets/image/main-logo.png
   assets/image/mic-off.svg
   assets/image/sara-chat-ai.png
   assets/image/sara-chat.png
@@ -77,8 +91,6 @@ Files:
   assets/image/video.mp4
   assets/js/bootstrap.bundle.min.js
   assets/js/bootstrap.bundle.min.js.map
-  image/home/1757785782833.png
-  image/home/1757785796698.png
-  image/home/1757785806329.png
-  image/home/1757786509511.png
-  image/home/1757787475086.png
+  assets/svgs/mic-off.svg
+  assets/svgs/mic-on.svg
+  assets/videos/video-placeholder.mp4

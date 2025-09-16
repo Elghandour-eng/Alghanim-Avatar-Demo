@@ -160,6 +160,17 @@
     <script src="assets/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            console.log("Sending screen dimensions to the server...");
+            fetch("/api/screen-dimensions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    width: window.innerWidth,
+                    height: window.innerHeight,
+                }),
+            });
             const form = document.getElementById("chat__form");
             const input = document.getElementById("text-message");
             const chatWrapper = document.querySelector(".chat__wrapper");
