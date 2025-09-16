@@ -3,7 +3,7 @@ const cors = require("cors");
 const path = require("path");
 require("dotenv").config();
 
-console.log("🚀 Starting Al Sayer Toyota Avatar Demo Server...");
+console.log("🚀 Starting  Avatar  Server...");
 console.log("📋 Environment variables loaded");
 console.log(`🔧 Node environment: ${process.env.NODE_ENV || "development"}`);
 
@@ -111,7 +111,7 @@ function parseDifyResponse(responseData) {
         return result;
         
     } catch (error) {
-        console.error('❌ Error parsing Dify response:', error);
+        console.error('❌ Error parsing PAIR response:', error);
         return {
             message: '',
             is_media: 0,
@@ -126,7 +126,7 @@ function parseDifyResponse(responseData) {
 // Serve the main HTML file first (before static middleware)
 console.log("🌐 Setting up route handlers...");
 app.get("/", (req, res) => {
-  console.log("📄 GET / - Serving home.html");
+  // console.log("📄 GET / - Serving home.html");
   console.log(`🔍 Request from IP: ${req.ip || req.connection.remoteAddress}`);
   res.sendFile(path.join(__dirname, "home.html"));
 });
@@ -153,7 +153,7 @@ console.log("📁 Static file serving configured");
 
 // Also serve home.html directly
 app.get("/home", (req, res) => {
-  console.log("🏠 GET /home - Serving home.html");
+  // console.log("🏠 GET /home - Serving home.html");
   console.log(`🔍 Request from IP: ${req.ip || req.connection.remoteAddress}`);
   res.sendFile(path.join(__dirname, "home.html"));
 });
@@ -271,9 +271,9 @@ app.get('/api/speech-sdk', async (req, res) => {
     }
 });
 
-// API endpoint to get HeyGen configuration
+// API endpoint to get PAIR-AVATAR configuration
 app.get("/api/heygen-config", (req, res) => {
-  console.log("🎭 GET /api/heygen-config - HeyGen configuration requested");
+  console.log("🎭 GET /api/avatar-config - PAIR-AVATAR configuration requested");
   console.log(`🔍 Request from IP: ${req.ip || req.connection.remoteAddress}`);
 
   try {
@@ -283,18 +283,18 @@ app.get("/api/heygen-config", (req, res) => {
       success: true,
     };
 
-    console.log("✅ HeyGen configuration sent successfully");
+    console.log("✅ PAIR-AVATAR configuration sent successfully");
     res.json(config);
   } catch (error) {
-    console.error("❌ Error getting HeyGen config:", error);
-    res.status(500).json({ error: "Failed to get HeyGen configuration" });
+    console.error("❌ Error getting PAIR-AVATAR config:", error);
+    res.status(500).json({ error: "Failed to get PAIR-AVATAR configuration" });
   }
 });
 
 // API endpoint to create HeyGen session
 app.post("/api/heygen-session", async (req, res) => {
   try {
-    console.log("🎭 POST /api/heygen-session - Creating HeyGen session");
+    console.log("🎭 POST /api/avatar-session - Creating PAIR-AVATAR session");
     const fetch = (await import("node-fetch")).default;
     const { avatarId, voiceId } = req.body;
 
@@ -322,32 +322,32 @@ app.post("/api/heygen-session", async (req, res) => {
       body: JSON.stringify(requestBody),
     });
 
-    console.log(`📥 HeyGen API response status: ${response.status}`);
+    console.log(`📥 PAIR-AVATAR API response status: ${response.status}`);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("❌ HeyGen API error:", errorText);
-      throw new Error(`HeyGen API error: ${response.status} ${errorText}`);
+      console.error("❌ PAIR-AVATAR API error:", errorText);
+      throw new Error(`PAIR-AVATAR API error: ${response.status} ${errorText}`);
     }
 
     const data = await response.json();
-    console.log("✅ HeyGen session created successfully");
+    console.log("✅ PAIR-AVATAR session created successfully");
 
     if (data.data) {
       res.json(data.data);
     } else {
-      throw new Error("Invalid response format from HeyGen API");
+      throw new Error("Invalid response format from PAIR-AVATAR API");
     }
   } catch (error) {
-    console.error("❌ Error creating HeyGen session:", error);
-    res.status(500).json({ error: "Failed to create HeyGen session" });
+    console.error("❌ Error creating PAIR-AVATAR session:", error);
+    res.status(500).json({ error: "Failed to create PAIR-AVATAR session" });
   }
 });
 
 // API endpoint to start HeyGen session
 app.post("/api/heygen-start", async (req, res) => {
   try {
-    console.log("🎭 POST /api/heygen-start - Starting HeyGen session");
+    console.log("🎭 POST /api/avatar-start - Starting PAIR-AVATAR session");
     const fetch = (await import("node-fetch")).default;
     const { sessionId, sdp } = req.body;
 
@@ -366,23 +366,23 @@ app.post("/api/heygen-start", async (req, res) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("❌ HeyGen start session error:", errorText);
-      throw new Error(`HeyGen API error: ${response.status} ${errorText}`);
+      console.error("❌ PAIR-AVATAR start session error:", errorText);
+      throw new Error(`PAIR-AVATAR API error: ${response.status} ${errorText}`);
     }
 
     const data = await response.json();
-    console.log("✅ HeyGen session started successfully");
+    console.log("✅ PAIR-AVATAR session started successfully");
     res.json(data.data);
   } catch (error) {
-    console.error("❌ Error starting HeyGen session:", error);
-    res.status(500).json({ error: "Failed to start HeyGen session" });
+    console.error("❌ Error starting PAIR-AVATAR session:", error);
+    res.status(500).json({ error: "Failed to start PAIR-AVATAR session" });
   }
 });
 
 // API endpoint to handle ICE candidates
 app.post("/api/heygen-ice", async (req, res) => {
   try {
-    console.log("🧊 POST /api/heygen-ice - Handling ICE candidate");
+    console.log("🧊 POST /api/avatar-ice - Handling ICE candidate");
     const fetch = (await import("node-fetch")).default;
     const { sessionId, candidate } = req.body;
 
@@ -403,8 +403,8 @@ app.post("/api/heygen-ice", async (req, res) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("❌ HeyGen ICE error:", errorText);
-      throw new Error(`HeyGen API error: ${response.status} ${errorText}`);
+      console.error("❌ PAIR-AVATAR ICE error:", errorText);
+      throw new Error(`PAIR-AVATAR API error: ${response.status} ${errorText}`);
     }
 
     const data = await response.json();
@@ -418,7 +418,7 @@ app.post("/api/heygen-ice", async (req, res) => {
 // API endpoint to make avatar speak
 app.post("/api/heygen-speak", async (req, res) => {
   try {
-    console.log("🗣️ POST /api/heygen-speak - Making avatar speak");
+    console.log("🗣️ POST /api/avatar-speak - Making avatar speak");
     const fetch = (await import("node-fetch")).default;
     const { sessionId, text } = req.body;
 
@@ -445,8 +445,8 @@ app.post("/api/heygen-speak", async (req, res) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("❌ HeyGen speak error:", errorText);
-      throw new Error(`HeyGen API error: ${response.status} ${errorText}`);
+      console.error("❌ PAIR-AVATAR speak error:", errorText);
+      throw new Error(`PAIR-AVATAR API error: ${response.status} ${errorText}`);
     }
 
     const data = await response.json();
@@ -461,7 +461,7 @@ app.post("/api/heygen-speak", async (req, res) => {
 // API endpoint to stop HeyGen session
 app.post("/api/heygen-stop", async (req, res) => {
   try {
-    console.log("🛑 POST /api/heygen-stop - Stopping HeyGen session");
+    console.log("🛑 POST /api/avatar-stop - Stopping PAIR-AVATAR session");
     const fetch = (await import("node-fetch")).default;
     const { sessionId } = req.body;
 
@@ -480,16 +480,16 @@ app.post("/api/heygen-stop", async (req, res) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("❌ HeyGen stop session error:", errorText);
-      throw new Error(`HeyGen API error: ${response.status} ${errorText}`);
+      console.error("❌ PAIR-AVATAR stop session error:", errorText);
+      throw new Error(`PAIR-AVATAR API error: ${response.status} ${errorText}`);
     }
 
         const data = await response.json();
-        console.log('✅ HeyGen session stopped successfully');
+        console.log('✅ PAIR-AVATAR session stopped successfully');
         res.json(data.data);
     } catch (error) {
-        console.error('❌ Error stopping HeyGen session:', error);
-        res.status(500).json({ error: 'Failed to stop HeyGen session' });
+        console.error('❌ Error stopping PAIR-AVATAR session:', error);
+        res.status(500).json({ error: 'Failed to stop PAIR-AVATAR session' });
     }
 });
 
