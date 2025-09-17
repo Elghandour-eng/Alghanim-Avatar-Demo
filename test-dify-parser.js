@@ -30,39 +30,102 @@ const testResponses = {
     },
     
     // Test case 5: String format
-    stringFormat: '{"message": "مرحبا بك في عالم كاديلاك", "is_media": 0, "media_url": ""}'
+    stringFormat: '{"message": "مرحبا بك في عالم كاديلاك", "is_media": 0, "media_url": ""}',
+    
+    // Test case 6: Markdown code block format (user's test case)
+    markdownFormat: '```json{\n  "message": "Good morning! Which Cadillac interests you?",\n  "is_media": 0,\n  "media_url": ""\n}```'
 };
 
 // Function to simulate the parseDifyResponse function (for testing purposes)
+// Function to simulate the parseDifyResponse function (for testing purposes)
 function parseDifyResponse(responseData) {
     try {
-        console.log('🔍 Parsing Dify response:', responseData);
+        console.log('🔍 Parsing PAIR response:', responseData);
+        
+        // Check if responseData is empty or null
+        if (!responseData || responseData === '') {
+            console.warn('⚠️ Warning: Empty or null PAIR response data');
+            return {
+                message: '',
+                is_media: 0,
+                media_url: '',
+                hasMedia: false,
+                isValid: false,
+                error: 'Empty response data'
+            };
+        }
         
         // Handle both string and object inputs
         let parsedData;
         if (typeof responseData === 'string') {
-            parsedData = JSON.parse(responseData);
-        } else {
+            // Trim whitespace and check if string is empty
+            const trimmedData = responseData.trim();
+            if (trimmedData === '') {
+                console.warn('⚠️ Warning: Empty string in PAIR response');
+                return {
+                    message: '',
+                    is_media: 0,
+                    media_url: '',
+                    hasMedia: false,
+                    isValid: false,
+                    error: 'Empty string response'
+                };
+            }
+            
+            // Check for markdown code block syntax and clean it
+            let jsonContent = trimmedData;
+            if (trimmedData.startsWith('```json') && trimmedData.endsWith('```')) {
+                console.log('🧹 Detected markdown code block, cleaning...');
+                // Remove ```json from start and ``` from end
+                jsonContent = trimmedData.slice(7, -3).trim(); // Remove ```json (7 chars) and ``` (3 chars)
+                console.log('✅ Markdown code block cleaned');
+            }
+            
+            // Try to parse JSON
+            try {
+                const cleanedJson = jsonContent.replace(/\s+/g, ' ').trim();
+                parsedData = JSON.parse(cleanedJson);
+                console.log('✅ JSON.parse successful after cleaning');
+            } catch (jsonError) {
+                console.warn('⚠️ Warning: Invalid JSON in PAIR response, treating as plain text');
+                // If it's not valid JSON, treat it as a plain text message
+                parsedData = {
+                    message: trimmedData,
+                    is_media: 0,
+                    media_url: ''
+                };
+            }
+        } else if (typeof responseData === 'object' && responseData !== null) {
             parsedData = responseData;
+        } else {
+            console.warn('⚠️ Warning: Invalid response data type:', typeof responseData);
+            return {
+                message: '',
+                is_media: 0,
+                media_url: '',
+                hasMedia: false,
+                isValid: false,
+                error: 'Invalid response data type'
+            };
         }
         
-        // Extract the required fields
+        // Extract the required fields with safe defaults
         const result = {
             message: parsedData.message || '',
             is_media: parsedData.is_media || 0,
             media_url: parsedData.media_url || '',
-            hasMedia: parsedData.is_media === 1,
+            hasMedia: (parsedData.is_media === 1 || parsedData.is_media === '1'),
             isValid: true
         };
         
         // Validate required fields
         if (!result.message) {
-            console.warn('⚠️ Warning: Dify response missing message field');
+            console.warn('⚠️ Warning: PAIR response missing message field');
             result.isValid = false;
         }
         
         // Log parsing result
-        console.log(`✅ Dify response parsed successfully:`);
+        console.log(`✅ PAIR response parsed successfully:`);
         console.log(`   📝 Message: "${result.message.substring(0, 100)}${result.message.length > 100 ? '...' : ''}"`);
         console.log(`   🎬 Has Media: ${result.hasMedia}`);
         if (result.hasMedia) {
@@ -72,7 +135,7 @@ function parseDifyResponse(responseData) {
         return result;
         
     } catch (error) {
-        console.error('❌ Error parsing Dify response:', error);
+        console.error('❌ Error parsing PAIR response:', error);
         return {
             message: '',
             is_media: 0,
@@ -83,7 +146,6 @@ function parseDifyResponse(responseData) {
         };
     }
 }
-
 // Test function
 function runTests() {
     console.log('🧪 Starting Dify Response Parser Tests\n');

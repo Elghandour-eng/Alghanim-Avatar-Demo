@@ -1625,15 +1625,109 @@
         textInput.placeholder = "Typing..";
       }
 
-      // Add click functionality to mic container
-      micContainer.addEventListener("click", function (e) {
-        e.preventDefault();
+      // Enhanced mic functionality with hold-to-open and tap-to-toggle
+      let isHolding = false;
+      let holdTimer = null;
+      let tapTimer = null;
+      let holdStartTime = 0;
+      const HOLD_THRESHOLD = 300; // milliseconds to distinguish between tap and hold
+      const TAP_DELAY = 200; // delay to detect double tap vs single tap
 
-        if (isListening) {
-          stopListening();
-        } else {
-          startListening();
+      // Mouse events
+      micContainer.addEventListener("mousedown", function (e) {
+        e.preventDefault();
+        handleMicStart();
+      });
+
+      micContainer.addEventListener("mouseup", function (e) {
+        e.preventDefault();
+        handleMicEnd();
+      });
+
+      micContainer.addEventListener("mouseleave", function (e) {
+        e.preventDefault();
+        if (isHolding) {
+          handleMicEnd();
         }
+      });
+
+      // Touch events for mobile
+      micContainer.addEventListener("touchstart", function (e) {
+        e.preventDefault();
+        handleMicStart();
+      });
+
+      micContainer.addEventListener("touchend", function (e) {
+        e.preventDefault();
+        handleMicEnd();
+      });
+
+      micContainer.addEventListener("touchcancel", function (e) {
+        e.preventDefault();
+        if (isHolding) {
+          handleMicEnd();
+        }
+      });
+
+      function handleMicStart() {
+        holdStartTime = Date.now();
+        isHolding = true;
+        
+        // Clear any existing timers
+        if (holdTimer) {
+          clearTimeout(holdTimer);
+          holdTimer = null;
+        }
+        if (tapTimer) {
+          clearTimeout(tapTimer);
+          tapTimer = null;
+        }
+
+        // Start hold timer - if held for HOLD_THRESHOLD, start listening
+        holdTimer = setTimeout(() => {
+          if (isHolding) {
+            console.log("Hold detected - starting listening");
+            if (!isListening) {
+              startListening();
+            }
+          }
+        }, HOLD_THRESHOLD);
+      }
+
+      function handleMicEnd() {
+        const holdDuration = Date.now() - holdStartTime;
+        isHolding = false;
+
+        // Clear hold timer
+        if (holdTimer) {
+          clearTimeout(holdTimer);
+          holdTimer = null;
+        }
+
+        if (holdDuration >= HOLD_THRESHOLD) {
+          // This was a hold - stop listening when released
+          console.log("Hold released - stopping listening");
+          if (isListening) {
+            stopListening();
+          }
+        } else {
+          // This was a tap - toggle behavior
+          console.log("Tap detected - toggling mic state");
+          
+          // Use a small delay to prevent accidental double-taps
+          tapTimer = setTimeout(() => {
+            if (isListening) {
+              stopListening();
+            } else {
+              startListening();
+            }
+          }, TAP_DELAY);
+        }
+      }
+
+      // Prevent context menu on right click
+      micContainer.addEventListener("contextmenu", function (e) {
+        e.preventDefault();
       });
 
       // Initialize on page load
