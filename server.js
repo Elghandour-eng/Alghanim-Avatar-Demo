@@ -61,7 +61,9 @@ function parseDifyResponse(responseData) {
             
             // Try to parse JSON
             try {
-                parsedData = JSON.parse(trimmedData);
+                    const cleanedJson = trimmedData.replace(/\s+/g, ' ').trim();
+                    parsedData = JSON.parse(cleanedJson);
+                    console.log('✅ JSON.parse successful after cleaning');
             } catch (jsonError) {
                 console.warn('⚠️ Warning: Invalid JSON in PAIR response, treating as plain text');
                 // If it's not valid JSON, treat it as a plain text message
