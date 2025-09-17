@@ -1409,6 +1409,9 @@
       let isListening = false;
       let speechToken = null;
       let speechRegion = null;
+      let audioContext = null;
+      let isRecognizerInitialized = false;
+      let initializationPromise = null;
 
       // Function to switch back to chat tab
       function switchToChatTab() {
@@ -1430,7 +1433,7 @@
         }
       }
 
-      // Get speech token from server
+      // Get speech token from server with caching
       async function getSpeechToken() {
         try {
           const response = await fetch("/api/speech-token", {
@@ -1455,41 +1458,99 @@
         }
       }
 
-      // Initialize Azure Speech Recognition
-      async function initializeSpeechRecognition() {
-        // Check if Speech SDK is available
-        if (!checkSpeechSDK()) {
-          console.error(
-            "Speech SDK not available. Please check your internet connection and try again."
-          );
-          return false;
-        }
-
-        if (!speechToken) {
-          const tokenReceived = await getSpeechToken();
-          if (!tokenReceived) {
-            console.error("Cannot initialize speech recognition without token");
-            return false;
+      // Initialize audio context for better performance
+      function initializeAudioContext() {
+        if (!audioContext) {
+          try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            console.log("Audio context initialized");
+          } catch (error) {
+            console.error("Failed to initialize audio context:", error);
           }
         }
-
-        try {
-          const speechConfig = SpeechSDK.SpeechConfig.fromAuthorizationToken(
-            speechToken,
-            speechRegion
-          );
-          speechConfig.speechRecognitionLanguage = "ar-KW"; // Arabic (Saudi Arabia)
-
-          const audioConfig =
-            SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
-          recognizer = new SpeechSDK.SpeechRecognizer(
-            speechConfig,
-            audioConfig
-          );
-        } catch (error) {
-          console.error("Error creating Speech SDK objects:", error);
-          return false;
+        
+        // Resume audio context if suspended
+        if (audioContext && audioContext.state === 'suspended') {
+          audioContext.resume().then(() => {
+            console.log("Audio context resumed");
+          }).catch(error => {
+            console.error("Failed to resume audio context:", error);
+          });
         }
+      }
+
+      // Initialize Azure Speech Recognition with optimization
+      async function initializeSpeechRecognition() {
+        // Return existing promise if initialization is in progress
+        if (initializationPromise) {
+          return initializationPromise;
+        }
+
+        // Return immediately if already initialized
+        if (isRecognizerInitialized && recognizer) {
+          console.log("Speech recognizer already initialized, reusing...");
+          return true;
+        }
+
+        initializationPromise = (async () => {
+          try {
+            // Check if Speech SDK is available
+            if (!checkSpeechSDK()) {
+              console.error(
+                "Speech SDK not available. Please check your internet connection and try again."
+              );
+              return false;
+            }
+
+            // Initialize audio context first
+            initializeAudioContext();
+
+            if (!speechToken) {
+              const tokenReceived = await getSpeechToken();
+              if (!tokenReceived) {
+                console.error("Cannot initialize speech recognition without token");
+                return false;
+              }
+            }
+
+            // Only create new recognizer if not already created
+            if (!recognizer) {
+              const speechConfig = SpeechSDK.SpeechConfig.fromAuthorizationToken(
+                speechToken,
+                speechRegion
+              );
+              speechConfig.speechRecognitionLanguage = "ar-KW"; // Arabic (Kuwait)
+
+              const audioConfig =
+                SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
+              recognizer = new SpeechSDK.SpeechRecognizer(
+                speechConfig,
+                audioConfig
+              );
+
+              // Set up event handlers only once
+              setupRecognizerEventHandlers();
+              console.log("New speech recognizer created and configured");
+            }
+
+            isRecognizerInitialized = true;
+            return true;
+          } catch (error) {
+            console.error("Error creating Speech SDK objects:", error);
+            isRecognizerInitialized = false;
+            recognizer = null;
+            return false;
+          } finally {
+            initializationPromise = null;
+          }
+        })();
+
+        return initializationPromise;
+      }
+
+      // Separate function to set up event handlers
+      function setupRecognizerEventHandlers() {
+        if (!recognizer) return;
 
         // Event handlers
         recognizer.recognizing = function (s, e) {
@@ -1533,8 +1594,6 @@
           console.log("Session stopped");
           stopListening();
         };
-
-        return true;
       }
 
       async function startListening() {
@@ -1552,24 +1611,28 @@
             console.log("Avatar unmuted by voice input.");
           }
 
-          if (!recognizer) {
-            const initialized = await initializeSpeechRecognition();
-            if (!initialized) {
-              console.error("Failed to initialize speech recognition");
-              // Add error animation
-              micFrame.classList.remove("loading");
-              micFrame.classList.add("error");
-              setTimeout(() => {
-                micFrame.classList.remove("error");
-              }, 500);
-              return;
-            }
+          // Initialize audio context
+          initializeAudioContext();
+
+          // Initialize recognizer if needed (this will be fast if already initialized)
+          const initialized = await initializeSpeechRecognition();
+          if (!initialized) {
+            console.error("Failed to initialize speech recognition");
+            // Add error animation
+            micFrame.classList.remove("loading");
+            micFrame.classList.add("error");
+            setTimeout(() => {
+              micFrame.classList.remove("error");
+            }, 500);
+            return;
           }
 
           isListening = true;
+          
+          // Start recognition immediately since recognizer is already initialized
           recognizer.startContinuousRecognitionAsync(
             function () {
-              console.log("Speech recognition started");
+              console.log("Speech recognition started (fast resume)");
               // Remove loading and add listening animation
               micFrame.classList.remove("loading");
               micFrame.classList.add("listening");
@@ -1606,7 +1669,7 @@
         if (recognizer && isListening) {
           recognizer.stopContinuousRecognitionAsync(
             function () {
-              console.log("Speech recognition stopped");
+              console.log("Speech recognition stopped (keeping recognizer alive)");
             },
             function (err) {
               console.error("Error stopping recognition: " + err);
@@ -1622,7 +1685,72 @@
         // Update UI - When not listening, show mic-off icon
         newMicIcon.src = "assets/svgs/mic-off.svg";
         micFrame.classList.remove("unmuted");
-        textInput.placeholder = "Typing..";
+        textInput.placeholder = "اكتب سؤالك هنا..";
+      }
+
+      // Function to cleanup resources when needed
+      function cleanupSpeechRecognition() {
+        console.log("🧹 Cleaning up speech recognition resources...");
+        
+        // Stop listening if currently active
+        if (isListening) {
+          stopListening();
+        }
+        
+        // Close and cleanup recognizer
+        if (recognizer) {
+          try {
+            recognizer.close();
+            console.log("✅ Speech recognizer closed");
+          } catch (error) {
+            console.error("❌ Error closing recognizer:", error);
+          }
+          recognizer = null;
+        }
+        
+        // Close and cleanup audio context
+        if (audioContext) {
+          try {
+            audioContext.close();
+            console.log("✅ Audio context closed");
+          } catch (error) {
+            console.error("❌ Error closing audio context:", error);
+          }
+          audioContext = null;
+        }
+        
+        // Reset all flags
+        isRecognizerInitialized = false;
+        initializationPromise = null;
+        speechToken = null;
+        
+        // Reset UI
+        newMicIcon.src = "assets/svgs/mic-off.svg";
+        micFrame.classList.remove("unmuted", "listening", "loading");
+        textInput.placeholder = "اكتب سؤالك هنا..";
+        
+        console.log("✅ Speech recognition resources cleaned up completely");
+      }
+
+      // Function to reinitialize microphone for new session
+      async function reinitializeMicrophoneForNewSession() {
+        console.log("🔄 Reinitializing microphone for new session...");
+        
+        // First cleanup any existing resources
+        cleanupSpeechRecognition();
+        
+        // Wait a moment for cleanup to complete
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Get fresh speech token
+        const tokenReceived = await getSpeechToken();
+        if (!tokenReceived) {
+          console.error("❌ Failed to get fresh speech token for new session");
+          return false;
+        }
+        
+        console.log("✅ Microphone reinitialized for new session");
+        return true;
       }
 
       // Add click functionality to mic container
@@ -1795,6 +1923,18 @@
                 "🆕 Generated new userId for fresh conversation:",
                 newUserId
               );
+
+              // Initialize microphone for new session
+              console.log("🎤 Initializing microphone for new session...");
+              reinitializeMicrophoneForNewSession().then((success) => {
+                if (success) {
+                  console.log("✅ Microphone ready for new session");
+                } else {
+                  console.warn("⚠️ Microphone initialization failed, but session will continue");
+                }
+              }).catch((error) => {
+                console.error("❌ Error initializing microphone for new session:", error);
+              });
 
               // Hide status after 3 seconds
               setTimeout(() => {
@@ -2071,6 +2211,15 @@
         }
 
         async closeSession() {
+          console.log("🛑 Closing avatar session and cleaning up resources...");
+          
+          // First, cleanup microphone WebSocket resources
+          console.log("🎤 Cleaning up microphone resources on session stop...");
+          cleanupSpeechRecognition();
+          
+          // Hide microphone container
+          document.getElementById("micContainer").style.display = "none";
+
           if (this.peerConnection) {
             this.peerConnection.close();
             this.peerConnection = null;
@@ -2117,6 +2266,8 @@
               </div>
             `;
           }
+          
+          console.log("✅ Session closed and all resources cleaned up");
         }
 
         // Method to manually retry connection
@@ -2231,6 +2382,18 @@
       window.addEventListener("beforeunload", function () {
         if (heygenAvatar) {
           heygenAvatar.closeSession();
+        }
+        // Clean up speech recognition resources
+        cleanupSpeechRecognition();
+      });
+
+      // Also cleanup when page becomes hidden (mobile browsers)
+      document.addEventListener("visibilitychange", function() {
+        if (document.hidden) {
+          // Page is hidden, pause recognition but keep resources
+          if (isListening) {
+            stopListening();
+          }
         }
       });
     </script>
