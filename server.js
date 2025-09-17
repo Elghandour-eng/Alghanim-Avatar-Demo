@@ -24,6 +24,101 @@ console.log("✅ JSON parsing middleware enabled");
 const userConversations = new Map();
 console.log('💾 User conversations storage initialized');
 
+// Store active HeyGen sessions and their keep-alive intervals
+const activeSessions = new Map();
+console.log('🎭 Active sessions storage initialized');
+
+// Keep-alive interval (in milliseconds) - send keep-alive every 30 seconds
+const KEEP_ALIVE_INTERVAL = 30000;
+
+// Function to start keep-alive for a session
+function startKeepAlive(sessionId) {
+    console.log(`🔄 Starting keep-alive for session: ${sessionId}`);
+    
+    // Clear any existing interval for this session
+    if (activeSessions.has(sessionId)) {
+        const existingData = activeSessions.get(sessionId);
+        if (existingData.keepAliveInterval) {
+            clearInterval(existingData.keepAliveInterval);
+        }
+    }
+    
+    // Create new keep-alive interval
+    const keepAliveInterval = setInterval(async () => {
+        try {
+            console.log(`💓 Sending keep-alive for session: ${sessionId}`);
+            const fetch = (await import("node-fetch")).default;
+            
+            const response = await fetch("https://api.heygen.com/v1/streaming.keep_alive", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Api-Key": process.env.HEYGEN_API_KEY,
+                },
+                body: JSON.stringify({ session_id: sessionId }),
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log(`✅ Keep-alive successful for session: ${sessionId}`);
+                
+                // Update session data
+                const sessionData = activeSessions.get(sessionId) || {};
+                sessionData.lastKeepAlive = new Date();
+                sessionData.keepAliveInterval = keepAliveInterval;
+                activeSessions.set(sessionId, sessionData);
+            } else {
+                const errorText = await response.text();
+                console.error(`❌ Keep-alive failed for session ${sessionId}:`, errorText);
+                
+                // If keep-alive fails, stop the interval and remove session
+                clearInterval(keepAliveInterval);
+                activeSessions.delete(sessionId);
+            }
+        } catch (error) {
+            console.error(`❌ Keep-alive error for session ${sessionId}:`, error);
+            // Continue trying unless it's a critical error
+        }
+    }, KEEP_ALIVE_INTERVAL);
+    
+    // Store session data
+    const sessionData = {
+        sessionId,
+        keepAliveInterval,
+        createdAt: new Date(),
+        lastKeepAlive: new Date()
+    };
+    activeSessions.set(sessionId, sessionData);
+}
+
+// Function to stop keep-alive for a session
+function stopKeepAlive(sessionId) {
+    console.log(`🛑 Stopping keep-alive for session: ${sessionId}`);
+    
+    if (activeSessions.has(sessionId)) {
+        const sessionData = activeSessions.get(sessionId);
+        if (sessionData.keepAliveInterval) {
+            clearInterval(sessionData.keepAliveInterval);
+        }
+        activeSessions.delete(sessionId);
+        console.log(`✅ Keep-alive stopped for session: ${sessionId}`);
+    }
+}
+
+// Function to get session status
+function getSessionStatus(sessionId) {
+    if (activeSessions.has(sessionId)) {
+        const sessionData = activeSessions.get(sessionId);
+        return {
+            active: true,
+            createdAt: sessionData.createdAt,
+            lastKeepAlive: sessionData.lastKeepAlive,
+            uptime: Date.now() - sessionData.createdAt.getTime()
+        };
+    }
+    return { active: false };
+}
+
 // Function to parse Dify response format
 function parseDifyResponse(responseData) {
     try {
@@ -344,7 +439,9 @@ app.post("/api/heygen-session", async (req, res) => {
     const data = await response.json();
     console.log("✅ PAIR-AVATAR session created successfully");
 
-    if (data.data) {
+    if (data.data && data.data.session_id) {
+      // Start keep-alive for the new session
+      startKeepAlive(data.data.session_id);
       res.json(data.data);
     } else {
       throw new Error("Invalid response format from PAIR-AVATAR API");
@@ -497,11 +594,104 @@ app.post("/api/heygen-stop", async (req, res) => {
 
         const data = await response.json();
         console.log('✅ PAIR-AVATAR session stopped successfully');
+        
+        // Stop keep-alive for this session
+        stopKeepAlive(sessionId);
+        
         res.json(data.data);
     } catch (error) {
         console.error('❌ Error stopping PAIR-AVATAR session:', error);
         res.status(500).json({ error: 'Failed to stop PAIR-AVATAR session' });
     }
+});
+
+// API endpoint for manual keep-alive
+app.post("/api/heygen-keep-alive", async (req, res) => {
+  try {
+    console.log("💓 POST /api/heygen-keep-alive - Manual keep-alive request");
+    const fetch = (await import("node-fetch")).default;
+    const { sessionId } = req.body;
+
+    if (!sessionId) {
+      return res.status(400).json({ error: "Session ID is required" });
+    }
+
+    const response = await fetch("https://api.heygen.com/v1/streaming.keep_alive", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Api-Key": process.env.HEYGEN_API_KEY,
+      },
+      body: JSON.stringify({ session_id: sessionId }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("❌ Manual keep-alive error:", errorText);
+      throw new Error(`HeyGen API error: ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log("✅ Manual keep-alive successful");
+    
+    // Update session data if it exists
+    if (activeSessions.has(sessionId)) {
+      const sessionData = activeSessions.get(sessionId);
+      sessionData.lastKeepAlive = new Date();
+      activeSessions.set(sessionId, sessionData);
+    }
+    
+    res.json(data);
+  } catch (error) {
+    console.error("❌ Error in manual keep-alive:", error);
+    res.status(500).json({ error: "Failed to send keep-alive" });
+  }
+});
+
+// API endpoint to get session status
+app.get("/api/heygen-session-status/:sessionId", (req, res) => {
+  try {
+    console.log("📊 GET /api/heygen-session-status - Getting session status");
+    const { sessionId } = req.params;
+
+    if (!sessionId) {
+      return res.status(400).json({ error: "Session ID is required" });
+    }
+
+    const status = getSessionStatus(sessionId);
+    console.log(`📊 Session ${sessionId} status:`, status);
+    
+    res.json({
+      sessionId,
+      ...status,
+      totalActiveSessions: activeSessions.size
+    });
+  } catch (error) {
+    console.error("❌ Error getting session status:", error);
+    res.status(500).json({ error: "Failed to get session status" });
+  }
+});
+
+// API endpoint to get all active sessions
+app.get("/api/heygen-sessions", (req, res) => {
+  try {
+    console.log("📊 GET /api/heygen-sessions - Getting all active sessions");
+    
+    const sessions = Array.from(activeSessions.entries()).map(([sessionId, data]) => ({
+      sessionId,
+      createdAt: data.createdAt,
+      lastKeepAlive: data.lastKeepAlive,
+      uptime: Date.now() - data.createdAt.getTime()
+    }));
+    
+    res.json({
+      totalSessions: sessions.length,
+      sessions
+    });
+  } catch (error) {
+    console.error("❌ Error getting active sessions:", error);
+    res.status(500).json({ error: "Failed to get active sessions" });
+  }
 });
 
 // API endpoint to parse Dify response format
