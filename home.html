@@ -1409,9 +1409,6 @@
       let isListening = false;
       let speechToken = null;
       let speechRegion = null;
-      let isRecognizerReady = false;
-      let speechConfig = null;
-      let audioConfig = null;
 
       // Function to switch back to chat tab
       function switchToChatTab() {
@@ -1458,76 +1455,48 @@
         }
       }
 
-      // Pre-initialize speech recognition components for faster startup
-      async function preInitializeSpeechRecognition() {
-        console.log("Pre-initializing speech recognition for faster startup...");
-        
+      // Initialize Azure Speech Recognition
+      async function initializeSpeechRecognition() {
         // Check if Speech SDK is available
         if (!checkSpeechSDK()) {
-          console.error("Speech SDK not available for pre-initialization");
+          console.error(
+            "Speech SDK not available. Please check your internet connection and try again."
+          );
           return false;
         }
 
-        // Get token early
         if (!speechToken) {
           const tokenReceived = await getSpeechToken();
           if (!tokenReceived) {
-            console.error("Cannot pre-initialize without token");
+            console.error("Cannot initialize speech recognition without token");
             return false;
           }
         }
 
         try {
-          // Pre-create speech config and audio config
-          speechConfig = SpeechSDK.SpeechConfig.fromAuthorizationToken(
+          const speechConfig = SpeechSDK.SpeechConfig.fromAuthorizationToken(
             speechToken,
             speechRegion
           );
-          speechConfig.speechRecognitionLanguage = "ar-KW";
-          
-          // Pre-create audio config
-          audioConfig = SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
-          
-          console.log("Speech recognition components pre-initialized successfully");
-          return true;
+          speechConfig.speechRecognitionLanguage = "ar-KW"; // Arabic (Saudi Arabia)
+
+          const audioConfig =
+            SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
+          recognizer = new SpeechSDK.SpeechRecognizer(
+            speechConfig,
+            audioConfig
+          );
         } catch (error) {
-          console.error("Error pre-initializing speech recognition:", error);
+          console.error("Error creating Speech SDK objects:", error);
           return false;
         }
-      }
 
-      // Fast speech recognition initialization using pre-initialized components
-      async function initializeSpeechRecognition() {
-        try {
-          // If not pre-initialized, do it now
-          if (!speechConfig || !audioConfig) {
-            console.log("Components not pre-initialized, initializing now...");
-            const preInitialized = await preInitializeSpeechRecognition();
-            if (!preInitialized) {
-              return false;
-            }
-          }
-
-          // Create recognizer using pre-initialized components
-          recognizer = new SpeechSDK.SpeechRecognizer(speechConfig, audioConfig);
-          
-          // Set up event handlers
-          setupRecognizerEventHandlers();
-          
-          isRecognizerReady = true;
-          console.log("Speech recognizer initialized and ready");
-          return true;
-        } catch (error) {
-          console.error("Error creating speech recognizer:", error);
-          return false;
-        }
-      }
-
-      // Separate function for event handlers to keep code clean
-      function setupRecognizerEventHandlers() {
+        // Event handlers
         recognizer.recognizing = function (s, e) {
           console.log("Recognizing: " + e.result.text);
           textInput.value = e.result.text;
+
+          // Switch back to chat tab when user starts speaking
           switchToChatTab();
         };
 
@@ -1536,12 +1505,18 @@
             console.log("Recognized: " + e.result.text);
             textInput.value = e.result.text;
 
+            // Auto-submit the message to chat and send to Dify
             if (e.result.text.trim() !== "") {
+              // Get the sendToDify function from the main script
               const event = new CustomEvent("speechRecognized", {
                 detail: { message: e.result.text.trim() },
               });
               document.dispatchEvent(event);
+
+              // Clear the input
               textInput.value = "";
+
+              // Keep listening - don't stop the microphone
             }
           }
         };
@@ -1558,6 +1533,8 @@
           console.log("Session stopped");
           stopListening();
         };
+
+        return true;
       }
 
       async function startListening() {
