@@ -59,9 +59,18 @@ function parseDifyResponse(responseData) {
                 };
             }
             
+            // Check for markdown code block syntax and clean it
+            let jsonContent = trimmedData;
+            if (trimmedData.startsWith('```json') && trimmedData.endsWith('```')) {
+                console.log('🧹 Detected markdown code block, cleaning...');
+                // Remove ```json from start and ``` from end
+                jsonContent = trimmedData.slice(7, -3).trim(); // Remove ```json (7 chars) and ``` (3 chars)
+                console.log('✅ Markdown code block cleaned');
+            }
+            
             // Try to parse JSON
             try {
-                    const cleanedJson = trimmedData.replace(/\s+/g, ' ').trim();
+                    const cleanedJson = jsonContent.replace(/\s+/g, ' ').trim();
                     parsedData = JSON.parse(cleanedJson);
                     console.log('✅ JSON.parse successful after cleaning');
             } catch (jsonError) {

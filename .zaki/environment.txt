@@ -10,7 +10,7 @@ Total Memory: 16GB
 Free Memory: 1GB
 CPU Cores: 12
 
-Current Time: 9/17/2025, 10:21:55 AM (Africa/Cairo, UTC+3:00)
+Current Time: 9/17/2025, 12:25:16 PM (Africa/Cairo, UTC+3:00)
 
 # EDITOR STATE
 
@@ -65,8 +65,6 @@ Files:
   assets/js/
   assets/svgs/
   assets/videos/
-  assets/fonts/OutfitBold.ttf
-  assets/fonts/OutfitRegular.ttf
   assets/css/bootstrap.min.css
   assets/css/bootstrap.min.css.map
   assets/css/prmpt.txt
@@ -74,6 +72,10 @@ Files:
   assets/css/style.css
   assets/css/style.css.map
   assets/css/style.scss
+  assets/fonts/OutfitBold.ttf
+  assets/fonts/OutfitRegular.ttf
+  assets/js/bootstrap.bundle.min.js
+  assets/js/bootstrap.bundle.min.js.map
   assets/image/ai-chat.png
   assets/image/avatar-message.jpg
   assets/image/fav-icon.png
@@ -89,8 +91,6 @@ Files:
   assets/image/sara-chat.png
   assets/image/video-mic-bg.mp4
   assets/image/video.mp4
-  assets/js/bootstrap.bundle.min.js
-  assets/js/bootstrap.bundle.min.js.map
   assets/svgs/mic-off.svg
   assets/svgs/mic-on.svg
   assets/videos/video-placeholder.mp4
