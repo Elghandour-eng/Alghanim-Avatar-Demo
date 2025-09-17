@@ -10,26 +10,31 @@ Total Memory: 16GB
 Free Memory: 1GB
 CPU Cores: 12
 
-Current Time: 9/16/2025, 10:06:54 AM (Africa/Cairo, UTC+3:00)
+Current Time: 9/17/2025, 10:21:55 AM (Africa/Cairo, UTC+3:00)
 
 # EDITOR STATE
 
 Visible Files:
-  server.js
+  home.html
 
 Open Tabs:
   .env
   assets\image\logo_cadillac.png
-  home.html
+  DIFY_PARSER_README.md
   .roo\mcp.json
-  assets\css\style.css
-  server.js
   test-dify-parser.js
   DIFY_PARSER_README.md
   README.md
   assets\css\prmpt.txt
   assets\css\style.scss
   assets\image\logo.png
+  assets\image\logo-pic.png
+  response
+  server.js
+  assets\css\style.css
+  index.html
+  home.html
+  assets\css\responsive.css
   configure-voice.html
   .gitignore
 
@@ -51,20 +56,17 @@ Files:
   image/
   index.html
   package-lock.json
+  response
   server.js
   test-dify-parser.js
-  image/home/
   assets/css/
   assets/fonts/
   assets/image/
   assets/js/
   assets/svgs/
   assets/videos/
-  image/home/1757785782833.png
-  image/home/1757785796698.png
-  image/home/1757785806329.png
-  image/home/1757786509511.png
-  image/home/1757787475086.png
+  assets/fonts/OutfitBold.ttf
+  assets/fonts/OutfitRegular.ttf
   assets/css/bootstrap.min.css
   assets/css/bootstrap.min.css.map
   assets/css/prmpt.txt
@@ -72,8 +74,6 @@ Files:
   assets/css/style.css
   assets/css/style.css.map
   assets/css/style.scss
-  assets/fonts/OutfitBold.ttf
-  assets/fonts/OutfitRegular.ttf
   assets/image/ai-chat.png
   assets/image/avatar-message.jpg
   assets/image/fav-icon.png
