@@ -578,6 +578,7 @@
           alt="Microphone Icon"
         />
       </div>
+      <div class="mic-hint">Press to speak</div>
     </div>
 
     <!-- Chat Interface -->
@@ -1760,6 +1761,7 @@
           newMicIcon.src = "assets/svgs/mic-on.svg";
           micFrame.classList.add("unmuted");
           textInput.placeholder = "Listening...";
+          document.querySelector(".mic-hint").style.display = "none";
         } catch (error) {
           console.error("Error in startListening:", error);
           // Add error animation
@@ -1793,6 +1795,7 @@
         newMicIcon.src = "assets/svgs/mic-off.svg";
         micFrame.classList.remove("unmuted");
         textInput.placeholder = "اكتب سؤالك هنا..";
+        document.querySelector(".mic-hint").style.display = "flex";
       }
 
       // Function to cleanup resources when needed
