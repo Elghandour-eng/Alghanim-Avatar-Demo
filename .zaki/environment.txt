@@ -7,34 +7,44 @@ Platform: win32
 Architecture: x64
 Node Version: v22.18.0
 Total Memory: 16GB
-Free Memory: 1GB
+Free Memory: 2GB
 CPU Cores: 12
 
-Current Time: 9/17/2025, 12:25:16 PM (Africa/Cairo, UTC+3:00)
+Current Time: 9/21/2025, 12:53:27 AM (Africa/Cairo, UTC+3:00)
 
 # EDITOR STATE
 
 Visible Files:
-  home.html
+  ..\..\..\..\AppData\Local\Programs\Microsoft VS Code\home.html
+  ..\..\..\..\AppData\Local\Programs\Microsoft VS Code\home.html
+  ..\..\..\..\AppData\Local\Programs\Microsoft VS Code\package-lock.json
+  ..\..\..\..\AppData\Local\Programs\Microsoft VS Code\package-lock.json
+  prompts\system-prompt.txt
 
 Open Tabs:
-  .env
+  assets\image\Cadillac Kiosk (1).zip
+  index.html
+  assets\css\style.css
+  assets\js\chromaKey.js
+  assets\css\responsive.css
+  assets\image\Cadillac Kiosk.zip
+  assets\js\car-vocabulary.js
   assets\image\logo_cadillac.png
   DIFY_PARSER_README.md
-  .roo\mcp.json
-  test-dify-parser.js
   DIFY_PARSER_README.md
   README.md
   assets\css\prmpt.txt
   assets\css\style.scss
   assets\image\logo.png
-  assets\image\logo-pic.png
-  response
   server.js
-  assets\css\style.css
-  index.html
+  test-llm-providers.js
+  .env
+  prompts\system-prompt.txt
+  knowledge-base\cadillac-models.json
+  llm-provider.js
   home.html
-  assets\css\responsive.css
+  response
+  test-dify-parser.js
   configure-voice.html
   .gitignore
 
@@ -55,16 +65,22 @@ Files:
   home.html
   image/
   index.html
+  knowledge-base/
+  llm-provider.js
   package-lock.json
+  prompts/
   response
   server.js
   test-dify-parser.js
+  test-llm-providers.js
   assets/css/
   assets/fonts/
   assets/image/
   assets/js/
   assets/svgs/
   assets/videos/
+  knowledge-base/cadillac-models.json
+  prompts/system-prompt.txt
   assets/css/bootstrap.min.css
   assets/css/bootstrap.min.css.map
   assets/css/prmpt.txt
@@ -76,6 +92,7 @@ Files:
   assets/fonts/OutfitRegular.ttf
   assets/js/bootstrap.bundle.min.js
   assets/js/bootstrap.bundle.min.js.map
+  assets/js/car-vocabulary.js
   assets/image/ai-chat.png
   assets/image/avatar-message.jpg
   assets/image/fav-icon.png
@@ -87,6 +104,8 @@ Files:
   assets/image/logo_cadillac.png
   assets/image/main-logo.png
   assets/image/mic-off.svg
+  assets/image/refresh-2.svg
+  assets/image/refresh-modal.svg
   assets/image/sara-chat-ai.png
   assets/image/sara-chat.png
   assets/image/video-mic-bg.mp4
