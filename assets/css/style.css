@@ -631,4 +631,90 @@ a {
   letter-spacing: 0%;
 }
 
+/*-----------------------
+    Refresh Button & Modal
+-------------------------*/
+.btn-refresh {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    gap: 10px;
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    right: 40px;
+    top: 40px;
+    background: rgba(255, 255, 255, 0.32);
+    border: 1px solid #FFFFFF;
+    backdrop-filter: blur(2px);
+    border-radius: 20px;
+    z-index: 10;
+}
+
+.btn-refresh img {
+    width: 32px;
+    height: 32px;
+}
+
+#refreshModal .modal-content {
+    border-radius: 16px;
+    border: none;
+}
+
+#refreshModal .modal-body {
+    padding: 40px;
+}
+
+#refreshModal .btn-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+}
+
+#refreshModal .refresh-icon {
+    width: 60px;
+    height: 60px;
+    background: #f0f0f0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+#refreshModal p {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+#refreshModal .btn-dark {
+    background-color: #000;
+    border-color: #000;
+    border-radius: 20px;
+    padding: 10px 30px;
+}
+
+.refresh-modal-text {
+    font-family: Outfit;
+    font-weight: 500;
+    font-style: Medium;
+    font-size: 24px;
+    line-height: 130%;
+    letter-spacing: 0%;
+    text-align: center;
+}
+
+.refresh-modal-button {
+    font-family: Outfit;
+    font-weight: 600;
+    font-style: SemiBold;
+    font-size: 20px;
+    line-height: 130%;
+    letter-spacing: 0%;
+}
+
+
 /*# sourceMappingURL=style.css.map */

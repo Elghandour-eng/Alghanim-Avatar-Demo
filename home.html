@@ -670,8 +670,11 @@
       </div>
 
       <!-- Avatar video (hidden by default) -->
-      <div class="avatar-container">
+      <div class="avatar-container position-relative">
         <video id="newAvatarVideo" class="avatar-video" autoplay muted></video>
+        <button class="btn btn-refresh" data-bs-toggle="modal" data-bs-target="#refreshModal">
+            <img src="assets/image/refresh-2.svg" alt="Refresh" />
+        </button>
       </div>
       <div class="limiter w-100 mx-auto">
         <div class="container-login100">
@@ -949,6 +952,21 @@
           </div>
         </div>
       </div>
+    </div>
+    <!-- Refresh Modal -->
+    <div class="modal fade" id="refreshModal" tabindex="-1" aria-labelledby="refreshModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="refresh-icon mb-3">
+                        <img src="assets/image/refresh-modal.svg" alt="Refresh Icon" />
+                    </div>
+                    <p class="refresh-modal-text">Are you sure you want to refresh this page?</p>
+                    <button type="button" class="btn btn-dark refresh-modal-button" onclick="refreshSession()">Refresh page</button>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- Bootstrap JavaScript Libraries -->
     <script src="assets/js/bootstrap.bundle.min.js"></script>
@@ -2807,6 +2825,14 @@
           }
         }
       });
+
+      function refreshSession() {
+        if (heygenAvatar) {
+          heygenAvatar.closeSession();
+        }
+        location.reload();
+      }
     </script>
+
   </body>
 </html>
