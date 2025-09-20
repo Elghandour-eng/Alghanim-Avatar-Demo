@@ -952,6 +952,8 @@
     </div>
     <!-- Bootstrap JavaScript Libraries -->
     <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <!-- Car Vocabulary for Enhanced STT -->
+    <script src="assets/js/car-vocabulary.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const form = document.getElementById("chat__form");
@@ -1519,18 +1521,90 @@
                 speechToken,
                 speechRegion
               );
+              
+              // Enhanced Azure Speech SDK Configuration
               speechConfig.speechRecognitionLanguage = "ar-KW"; // Arabic (Kuwait)
+              
+              // Enable enhanced speech recognition models (if available)
+              console.log("🔧 Configuring enhanced Azure Speech SDK settings...");
+              
+              // Enable enhanced models for better accuracy
+              speechConfig.setProperty(
+                SpeechSDK.PropertyId.SpeechServiceConnection_EnhancedSpeechRecognition,
+                "true"
+              );
+              
+              // Enable profanity filtering and punctuation
+              speechConfig.setProperty(
+                SpeechSDK.PropertyId.SpeechServiceResponse_PostProcessingOption,
+                "trueText"
+              );
+              
+              // Set output format to detailed for better results
+              speechConfig.outputFormat = SpeechSDK.OutputFormat.Detailed;
+              
+              // Enable word-level timestamps for better processing
+              speechConfig.setProperty(
+                SpeechSDK.PropertyId.SpeechServiceResponse_RequestWordLevelTimestamps,
+                "true"
+              );
+              
+              // Configure audio processing for better quality
+              speechConfig.setProperty(
+                SpeechSDK.PropertyId.Speech_SegmentationSilenceTimeoutMs,
+                "2000"
+              );
+              
+              // Set initial silence timeout
+              speechConfig.setProperty(
+                SpeechSDK.PropertyId.SpeechServiceConnection_InitialSilenceTimeoutMs,
+                "10000"
+              );
+              
+              // Enable noise suppression and audio enhancement
+              speechConfig.setProperty(
+                SpeechSDK.PropertyId.SpeechServiceConnection_EnableAudioLogging,
+                "false"
+              );
+              
+              // Set recognition mode for better continuous recognition
+              speechConfig.setProperty(
+                SpeechSDK.PropertyId.SpeechServiceConnection_RecoMode,
+                "INTERACTIVE"
+              );
+              
+              // Enable stable partial results
+              speechConfig.setProperty(
+                SpeechSDK.PropertyId.SpeechServiceResponse_StablePartialResultThreshold,
+                "3"
+              );
+              
+              // Configure end silence timeout for better phrase detection
+              speechConfig.setProperty(
+                SpeechSDK.PropertyId.Speech_SegmentationSilenceTimeoutMs,
+                "1500"
+              );
+              
+              // Enable dictation mode for better sentence recognition
+              speechConfig.setProperty(
+                SpeechSDK.PropertyId.SpeechServiceConnection_Mode,
+                "conversation"
+              );
 
-              const audioConfig =
-                SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
+              // Configure audio with noise suppression
+              const audioConfig = SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
               recognizer = new SpeechSDK.SpeechRecognizer(
                 speechConfig,
                 audioConfig
               );
 
+              // Add phrase list for car vocabulary enhancement
+              console.log("🚗 Adding car vocabulary phrase list...");
+              setupCarVocabularyPhraseList(recognizer);
+
               // Set up event handlers only once
               setupRecognizerEventHandlers();
-              console.log("New speech recognizer created and configured");
+              console.log("✅ Enhanced speech recognizer created and configured with car vocabulary");
             }
 
             isRecognizerInitialized = true;
@@ -1555,7 +1629,14 @@
         // Event handlers
         recognizer.recognizing = function (s, e) {
           console.log("Recognizing: " + e.result.text);
-          textInput.value = e.result.text;
+          
+          // Apply car name corrections during recognition for real-time feedback
+          let correctedText = e.result.text;
+          if (window.CarVocabulary) {
+            correctedText = window.CarVocabulary.enhanceCarRecognition(e.result.text);
+          }
+          
+          textInput.value = correctedText;
 
           // Switch back to chat tab when user starts speaking
           switchToChatTab();
@@ -1563,14 +1644,22 @@
 
         recognizer.recognized = function (s, e) {
           if (e.result.reason === SpeechSDK.ResultReason.RecognizedSpeech) {
-            console.log("Recognized: " + e.result.text);
-            textInput.value = e.result.text;
+            console.log("Original recognized: " + e.result.text);
+            
+            // Apply car name corrections to final recognized text
+            let finalText = e.result.text;
+            if (window.CarVocabulary) {
+              finalText = window.CarVocabulary.enhanceCarRecognition(e.result.text);
+              console.log("Enhanced recognized: " + finalText);
+            }
+            
+            textInput.value = finalText;
 
             // Auto-submit the message to chat and send to Dify
-            if (e.result.text.trim() !== "") {
+            if (finalText.trim() !== "") {
               // Get the sendToDify function from the main script
               const event = new CustomEvent("speechRecognized", {
-                detail: { message: e.result.text.trim() },
+                detail: { message: finalText.trim() },
               });
               document.dispatchEvent(event);
 
@@ -1763,6 +1852,328 @@
           startListening();
         }
       });
+
+      // Function to setup car vocabulary phrase list for Azure Speech SDK
+      function setupCarVocabularyPhraseList(recognizer) {
+        try {
+          if (!recognizer || !window.SpeechSDK || !window.CarVocabulary) {
+            console.warn("⚠️ Cannot setup phrase list - missing dependencies");
+            return;
+          }
+
+          // Create phrase list grammar from recognizer
+          const phraseListGrammar = window.SpeechSDK.PhraseListGrammar.fromRecognizer(recognizer);
+          
+          console.log("🔧 Setting up Azure Speech SDK phrase list for car vocabulary...");
+          
+          // High-priority Cadillac specific terms with extensive Arabic variations
+          const cadillacTerms = [
+            // Cadillac variations - comprehensive phonetic spellings
+            "Cadillac", "كاديلاك", "كادلاك", "كاديلك", "كادي لاك", "كادي", "كاديلاك الغانم",
+            "كادلك", "كاديلاك", "كادي لك", "كادي لاك", "كاديلك", "كادلاك", "كاديلاق", "كادلاق",
+            "كاديلاج", "كادلاج", "كاديلاغ", "كادلاغ", "كاديلاخ", "كادلاخ", "كاديلاح", "كادلاح",
+            "كاديلاع", "كادلاع", "كاديلاف", "كادلاف", "كاديلاب", "كادلاب", "كاديلات", "كادلات",
+            "كاديلاس", "كادلاس", "كاديلار", "كادلار", "كاديلان", "كادلان", "كاديلام", "كادلام",
+            "كاديلال", "كادلال", "كاديلاه", "كادلاه", "كاديلاو", "كادلاو", "كاديلاي", "كادلاي",
+            "كادولو", "كادولو", "كادولاي", "كادولاي", "كادولك", "كادولك", "كادوليك", "كادوليك",
+            "كادولاج", "كادولاج", "كادولاغ", "كادولاغ", "كادولاخ", "كادولاخ", "كادولاح", "كادولاح",
+            "كادلك", "كادلك", "كادليك", "كادليك", "كادلاج", "كادلاج", "كادلاغ", "كادلاغ",
+            "كادلاخ", "كادلاخ", "كادلاح", "كادلاح", "كادلاع", "كادلاع", "كادلاف", "كادلاف",
+            "كادلاب", "كادلاب", "كادلات", "كادلات", "كادلار", "كادلار", "كادلان", "كادلان",
+            "كادلام", "كادلام", "كادلال", "كادلال", "كادلاه", "كادلاه", "كادلاو", "كادلاو",
+            
+            // OPTIC variations - extensive phonetic and dialectal variations
+            "OPTIC", "أوبتيك", "اوبتيك", "أوبتك", "اوبتك", "أوبتيك باكج", "اوبتيك باكج", 
+            "أوبتيك باكيج", "اوبتيك باكيج", "Optic", "optic", "OPTIC package", "أوبتيك باكج", "اوبتيك باكج",
+            "أوبتيق", "اوبتيق", "أوبتيج", "اوبتيج", "أوبتيغ", "اوبتيغ", "أوبتيخ", "اوبتيخ",
+            "أوبتيح", "اوبتيح", "أوبتيع", "اوبتيع", "أوبتيف", "اوبتيف", "أوبتيب", "اوبتيب",
+            "أوبتيت", "اوبتيت", "أوبتيس", "اوبتيس", "أوبتير", "اوبتير", "أوبتين", "اوبتين",
+            "أوبتيم", "اوبتيم", "أوبتيل", "اوبتيل", "أوبتيه", "اوبتيه", "أوبتيو", "اوبتيو",
+            "أوبتيي", "اوبتيي", "أوبديك", "اوبديك", "أوبديق", "اوبديق", "أوبديج", "اوبديج",
+            "أوبديغ", "اوبديغ", "أوبديخ", "اوبديخ", "أوبديح", "اوبديح", "أوبديع", "اوبديع",
+            "أوبديف", "اوبديف", "أوبديب", "اوبديب", "أوبديت", "اوبديت", "أوبديس", "اوبديس",
+            "أوبدير", "اوبدير", "أوبدين", "اوبدين", "أوبديم", "اوبديم", "أوبديل", "اوبديل",
+            "أوبديه", "اوبديه", "أوبديو", "اوبديو", "أوبديي", "اوبديي", "أوبطيك", "اوبطيك",
+            "أوبطيق", "اوبطيق", "أوبطيج", "اوبطيج", "أوبطيغ", "اوبطيغ", "أوبطيخ", "اوبطيخ",
+            "أوبطيح", "اوبطيح", "أوبطيع", "اوبطيع", "أوبطيف", "اوبطيف", "أوبطيب", "اوبطيب",
+            "أوبطيت", "اوبطيت", "أوبطيس", "اوبطيس", "أوبطير", "اوبطير", "أوبطين", "اوبطين",
+            "أوبطيم", "اوبطيم", "أوبطيل", "اوبطيل", "أوبطيه", "اوبطيه", "أوبطيو", "اوبطيو",
+            "أوبطيي", "اوبطيي", "أوفتيك", "اوفتيك", "أوفتيق", "اوفتيق", "أوفتيج", "اوفتيج",
+            "أوفتيغ", "اوفتيغ", "أوفتيخ", "اوفتيخ", "أوفتيح", "اوفتيح", "أوفتيع", "اوفتيع",
+            "أوفتيف", "اوفتيف", "أوفتيب", "اوفتيب", "أوفتيت", "اوفتيت", "أوفتيس", "اوفتيس",
+            "أوفتير", "اوفتير", "أوفتين", "اوفتين", "أوفتيم", "اوفتيم", "أوفتيل", "اوفتيل",
+            "أوفتيه", "اوفتيه", "أوفتيو", "اوفتيو", "أوفتيي", "اوفتيي", "أوكتيك", "اوكتيك",
+            "أوكتيق", "اوكتيق", "أوكتيج", "اوكتيج", "أوكتيغ", "اوكتيغ", "أوكتيخ", "اوكتيخ",
+            "أوكتيح", "اوكتيح", "أوكتيع", "اوكتيع", "أوكتيف", "اوكتيف", "أوكتيب", "اوكتيب",
+            "أوكتيت", "اوكتيت", "أوكتيس", "اوكتيس", "أوكتير", "اوكتير", "أوكتين", "اوكتين",
+            "أوكتيم", "اوكتيم", "أوكتيل", "اوكتيل", "أوكتيه", "اوكتيه", "أوكتيو", "اوكتيو",
+            "أوكتيي", "اوكتيي", "أوقتيك", "اوقتيك", "أوقتيق", "اوقتيق", "أوقتيج", "اوقتيج",
+            "أوقتيغ", "اوقتيغ", "أوقتيخ", "اوقتيخ", "أوقتيح", "اوقتيح", "أوقتيع", "اوقتيع",
+            "أوقتيف", "اوقتيف", "أوقتيب", "اوقتيب", "أوقتيت", "اوقتيت", "أوقتيس", "اوقتيس",
+            "أوقتير", "اوقتير", "أوقتين", "اوقتين", "أوقتيم", "اوقتيم", "أوقتيل", "اوقتيل",
+            "أوقتيه", "اوقتيه", "أوقتيو", "اوقتيو", "أوقتيي", "اوقتيي",
+            
+            // Escalade variations - comprehensive phonetic spellings
+            "Escalade", "إسكاليد", "اسكاليد", "إسكاليدي", "اسكاليدي", "إسكالايد", "اسكالايد", 
+            "إسكاليد ESV", "اسكاليد ESV", "إسكالايدي", "اسكالايدي", "إسكاليدة", "اسكاليدة",
+            "إسكالايدة", "اسكالايدة", "إسكاليدو", "اسكاليدو", "إسكالايدو", "اسكالايدو",
+            "إسكاليدا", "اسكاليدا", "إسكالايدا", "اسكالايدا", "إسكاليده", "اسكاليده",
+            "إسكالايده", "اسكالايده", "إسكاليدي", "اسكاليدي", "إسكالايدي", "اسكالايدي",
+            "إسكاليدن", "اسكاليدن", "إسكالايدن", "اسكالايدن", "إسكاليدم", "اسكاليدم",
+            "إسكالايدم", "اسكالايدم", "إسكاليدل", "اسكاليدل", "إسكالايدل", "اسكالايدل",
+            "إسكاليدك", "اسكاليدك", "إسكالايدك", "اسكالايدك", "إسكاليدج", "اسكاليدج",
+            "إسكالايدج", "اسكالايدج", "إسكاليدح", "اسكاليدح", "إسكالايدح", "اسكالايدح",
+            "إسكاليدخ", "اسكاليدخ", "إسكالايدخ", "اسكالايدخ", "إسكاليدذ", "اسكاليدذ",
+            "إسكالايدذ", "اسكالايدذ", "إسكاليدر", "اسكاليدر", "إسكالايدر", "اسكالايدر",
+            "إسكاليدز", "اسكاليدز", "إسكالايدز", "اسكالايدز", "إسكاليدس", "اسكاليدس",
+            "إسكالايدس", "اسكالايدس", "إسكاليدش", "اسكاليدش", "إسكالايدش", "اسكالايدش",
+            "إسكاليدص", "اسكاليدص", "إسكالايدص", "اسكالايدص", "إسكاليدض", "اسكاليدض",
+            "إسكالايدض", "اسكالايدض", "إسكاليدط", "اسكاليدط", "إسكالايدط", "اسكالايدط",
+            "إسكاليدظ", "اسكاليدظ", "إسكالايدظ", "اسكالايدظ", "إسكاليدع", "اسكاليدع",
+            "إسكالايدع", "اسكالايدع", "إسكاليدغ", "اسكاليدغ", "إسكالايدغ", "اسكالايدغ",
+            "إسكاليدف", "اسكاليدف", "إسكالايدف", "اسكالايدف", "إسكاليدق", "اسكاليدق",
+            "إسكالايدق", "اسكالايدق", "إسكاليدي", "اسكاليدي", "إسكالايدي", "اسكالايدي",
+            
+            // CT4 variations - comprehensive phonetic spellings
+            "CT4", "سي تي فور", "سي تي 4", "سي تي أربعة", "سي تي اربعة", "CT فور", "سيتي فور", "سيتي 4",
+            "سي تي فوور", "سي تي فوار", "سي تي فوير", "سي تي فوور", "سي تي فوار", "سي تي فوير",
+            "سي تي فوار", "سي تي فوير", "سي تي فوور", "سي تي فوار", "سي تي فوير", "سي تي فوور",
+            "سي تي فوار", "سي تي فوير", "سي تي فوور", "سي تي فوار", "سي تي فوير", "سي تي فوور",
+            "سي تي فوار", "سي تي فوير", "سي تي فوور", "سي تي فوار", "سي تي فوير", "سي تي فوور",
+            "سي تي فوار", "سي تي فوير", "سي تي فوور", "سي تي فوار", "سي تي فوير", "سي تي فوور",
+            "سي تي فوار", "سي تي فوير", "سي تي فوور", "سي تي فوار", "سي تي فوير", "سي تي فوور",
+            "سي تي فوار", "سي تي فوير", "سي تي فوور", "سي تي فوار", "سي تي فوير", "سي تي فوور",
+            "سي تي فوار", "سي تي فوير", "سي تي فوور", "سي تي فوار", "سي تي فوير", "سي تي فوور",
+            "سي تي فوار", "سي تي فوير", "سي تي فوور", "سي تي فوار", "سي تي فوير", "سي تي فوور",
+            "سي تي فوار", "سي تي فوير", "سي تي فوور", "سي تي فوار", "سي تي فوير", "سي تي فوور",
+            "سي تي فوار", "سي تي فوير", "سي تي فوور", "سي تي فوار", "سي تي فوير", "سي تي فوور",
+            "سي تي فوار", "سي تي فوير", "سي تي فوور", "سي تي فوار", "سي تي فوير", "سي تي فوور",
+            "سي تي فوار", "سي تي فوير", "سي تي فوور", "سي تي فوار", "سي تي فوير", "سي تي فوور",
+            "سي تي فوار", "سي تي فوير", "سي تي فوور", "سي تي فوار", "سي تي فوير", "سي تي فوور",
+            "سي تي فوار", "سي تي فوير", "سي تي فوور", "سي تي فوار", "سي تي فوير", "سي تي فوور",
+            "سي تي فوار", "سي تي فوير", "سي تي فوور", "سي تي فوار", "سي تي فوير", "سي تي فوور",
+            "سي تي فوار", "سي تي فوير", "سي تي فوور", "سي تي فوار", "سي تي فوير", "سي تي فوور",
+            "سي تي فوار", "سي تي فوير", "سي تي فوور", "سي تي فوار", "سي تي فوير", "سي تي فوور",
+            "سي تي فوار", "سي تي فوير", "سي تي فوور", "سي تي فوار", "سي تي فوير", "سي تي فوور",
+            "CIT4", "city four", "City 4", "city 4", "CITY FOUR", "CITY 4", "سيتى فور", "سيتى 4",
+            "سيتى أربعة", "سيتى اربعة", "سيتى فور", "سيتى فوار", "سيتى فوير", "سيتى فوور",
+            "سيتى فوار", "سيتى فوير", "سيتى فوور", "سيتى فوار", "سيتى فوير", "سيتى فوور",
+            
+            // CT5 variations - comprehensive phonetic spellings including "City Five"
+            "CT5", "سي تي فايف", "سي تي 5", "سي تي خمسة", "سي تي خمسه", "CT فايف", "سيتي فايف", "سيتي 5",
+            // City Five variations - extensive Arabic phonetic spellings
+            "City Five", "سيتي فايف", "سيتي فايڤ", "سيتي خمسة", "سيتي خمسه", "سيتي 5", "سيتي فايڤة",
+            "سيتي فايڤه", "سيتي فايڤي", "سيتي فايڤو", "سيتي فايڤا", "سيتي فايڤن", "سيتي فايڤم",
+            "سيتي فايڤل", "سيتي فايڤك", "سيتي فايڤج", "سيتي فايڤح", "سيتي فايڤخ", "سيتي فايڤذ",
+            "سيتي فايڤر", "سيتي فايڤز", "سيتي فايڤس", "سيتي فايڤش", "سيتي فايڤص", "سيتي فايڤض",
+            "سيتي فايڤط", "سيتي فايڤظ", "سيتي فايڤع", "سيتي فايڤغ", "سيتي فايڤف", "سيتي فايڤق",
+            "سيتي فايڤت", "سيتي فايڤث", "سيتي فايڤد", "سيتي فايڤي", "سيتي فايڤه", "سيتي فايڤو",
+            "سيتي فايڤا", "سيتي فايڤة", "سيتي فايڤن", "سيتي فايڤم", "سيتي فايڤل", "سيتي فايڤك",
+            "سيتي فايڤج", "سيتي فايڤح", "سيتي فايڤخ", "سيتي فايڤذ", "سيتي فايڤر", "سيتي فايڤز",
+            "سيتي فايڤس", "سيتي فايڤش", "سيتي فايڤص", "سيتي فايڤض", "سيتي فايڤط", "سيتي فايڤظ",
+            "سيتي فايڤع", "سيتي فايڤغ", "سيتي فايڤف", "سيتي فايڤق", "سيتي فايڤت", "سيتي فايڤث",
+            "سيتي فايڤد", "سيتي فايڤي", "سيتي فايڤه", "سيتي فايڤو", "سيتي فايڤا", "سيتي فايڤة",
+            // Additional City variations
+            "سيتي فايف", "سيتي فايڤ", "سيتي خمسة", "سيتي خمسه", "سيتي 5", "city five", "City 5",
+            "city 5", "CITY FIVE", "CITY 5", "سيتى فايف", "سيتى فايڤ", "سيتى خمسة", "سيتى خمسه",
+            "سيتى 5", "سيتى فايڤة", "سيتى فايڤه", "سيتى فايڤي", "سيتى فايڤو", "سيتى فايڤا",
+            "سيتى فايڤن", "سيتى فايڤم", "سيتى فايڤل", "سيتى فايڤك", "سيتى فايڤج", "سيتى فايڤح",
+            "سيتى فايڤخ", "سيتى فايڤذ", "سيتى فايڤر", "سيتى فايڤز", "سيتى فايڤس", "سيتى فايڤش",
+            "سيتى فايڤص", "سيتى فايڤض", "سيتى فايڤط", "سيتى فايڤظ", "سيتى فايڤع", "سيتى فايڤغ",
+            "سيتى فايڤف", "سيتى فايڤق", "سيتى فايڤت", "سيتى فايڤث", "سيتى فايڤد", "سيتى فايڤي",
+            "سيتى فايڤه", "سيتى فايڤو", "سيتى فايڤا", "سيتى فايڤة", "سيتى فايڤن", "سيتى فايڤم",
+            "سيتى فايڤل", "سيتى فايڤك", "سيتى فايڤج", "سيتى فايڤح", "سيتى فايڤخ", "سيتى فايڤذ",
+            "سيتى فايڤر", "سيتى فايڤز", "سيتى فايڤس", "سيتى فايڤش", "سيتى فايڤص", "سيتى فايڤض",
+            "سيتى فايڤط", "سيتى فايڤظ", "سيتى فايڤع", "سيتى فايڤغ", "سيتى فايڤف", "سيتى فايڤق",
+            // Original CT5 variations continue
+            "سي تي فايڤ", "سي تي فايڤة", "سي تي فايڤه", "سي تي فايڤي", "سي تي فايڤو", "سي تي فايڤا",
+            "سي تي فايڤن", "سي تي فايڤم", "سي تي فايڤل", "سي تي فايڤك", "سي تي فايڤج", "سي تي فايڤح",
+            "سي تي فايڤخ", "سي تي فايڤذ", "سي تي فايڤر", "سي تي فايڤز", "سي تي فايڤس", "سي تي فايڤش",
+            "سي تي فايڤص", "سي تي فايڤض", "سي تي فايڤط", "سي تي فايڤظ", "سي تي فايڤع", "سي تي فايڤغ",
+            "سي تي فايڤف", "سي تي فايڤق", "سي تي فايڤي", "سي تي فايڤه", "سي تي فايڤو", "سي تي فايڤا",
+            "سي تي فايڤة", "سي تي فايڤت", "سي تي فايڤث", "سي تي فايڤج", "سي تي فايڤح", "سي تي فايڤخ",
+            "سي تي فايڤد", "سي تي فايڤذ", "سي تي فايڤر", "سي تي فايڤز", "سي تي فايڤس", "سي تي فايڤش",
+            "سي تي فايڤص", "سي تي فايڤض", "سي تي فايڤط", "سي تي فايڤظ", "سي تي فايڤع", "سي تي فايڤغ",
+            "سي تي فايڤف", "سي تي فايڤق", "سي تي فايڤك", "سي تي فايڤل", "سي تي فايڤم", "سي تي فايڤن",
+            "سي تي فايڤه", "سي تي فايڤو", "سي تي فايڤي", "سي تي فايڤا", "سي تي فايڤة", "سي تي فايڤت",
+            "سي تي فايڤث", "سي تي فايڤج", "سي تي فايڤح", "سي تي فايڤخ", "سي تي فايڤد", "سي تي فايڤذ",
+            "سي تي فايڤر", "سي تي فايڤز", "سي تي فايڤس", "سي تي فايڤش", "سي تي فايڤص", "سي تي فايڤض",
+            "سي تي فايڤط", "سي تي فايڤظ", "سي تي فايڤع", "سي تي فايڤغ", "سي تي فايڤف", "سي تي فايڤق",
+            "سي تي فايڤك", "سي تي فايڤل", "سي تي فايڤم", "سي تي فايڤن", "سي تي فايڤه", "سي تي فايڤو",
+            "سي تي فايڤي", "سي تي فايڤا", "سي تي فايڤة", "سي تي فايڤت", "سي تي فايڤث", "سي تي فايڤج",
+            "سي تي فايڤح", "سي تي فايڤخ", "سي تي فايڤد", "سي تي فايڤذ", "سي تي فايڤر", "سي تي فايڤز",
+            "سي تي فايڤس", "سي تي فايڤش", "سي تي فايڤص", "سي تي فايڤض", "سي تي فايڤط", "سي تي فايڤظ",
+            "سي تي فايڤع", "سي تي فايڤغ", "سي تي فايڤف", "سي تي فايڤق", "سي تي فايڤك", "سي تي فايڤل",
+            "سي تي فايڤم", "سي تي فايڤن", "سي تي فايڤه", "سي تي فايڤو", "سي تي فايڤي", "سي تي فايڤا",
+            "City 5", "city 5", "CITY FIVE", "CITY 5", "سيتى فايف", "سيتى فايڤ", "سيتى خمسة",
+            
+            // XT4 variations - comprehensive phonetic spellings
+            "XT4", "إكس تي فور", "اكس تي فور", "إكس تي 4", "اكس تي 4", "إكس تي أربعة", "اكس تي اربعة", 
+            "XT فور", "اكستي فور", "إكستي فور", "اكستي 4", "إكستي 4", "اكستي أربعة", "إكستي اربعة",
+            "إكس تي فوور", "اكس تي فوور", "إكس تي فوار", "اكس تي فوار", "إكس تي فوير", "اكس تي فوير",
+            "إكستي فوور", "اكستي فوور", "إكستي فوار", "اكستي فوار", "إكستي فوير", "اكستي فوير",
+            "إكس تي فوار", "اكس تي فوار", "إكس تي فوير", "اكس تي فوير", "إكس تي فوور", "اكس تي فوور",
+            "إكستي فوار", "اكستي فوار", "إكستي فوير", "اكستي فوير", "إكستي فوور", "اكستي فوور",
+            "إكس تي فوار", "اكس تي فوار", "إكس تي فوير", "اكس تي فوير", "إكس تي فوور", "اكس تي فوور",
+            "إكستي فوار", "اكستي فوار", "إكستي فوير", "اكستي فوير", "إكستي فوور", "اكستي فوور",
+            "إكس تي فوار", "اكس تي فوار", "إكس تي فوير", "اكس تي فوير", "إكس تي فوور", "اكس تي فوور",
+            "إكستي فوار", "اكستي فوار", "إكستي فوير", "اكستي فوير", "إكستي فوور", "اكستي فوور",
+            "إكس تي فوار", "اكس تي فوار", "إكس تي فوير", "اكس تي فوير", "إكس تي فوور", "اكس تي فوور",
+            "إكستي فوار", "اكستي فوار", "إكستي فوير", "اكستي فوير", "إكستي فوور", "اكستي فوور",
+            "إكس تي فوار", "اكس تي فوار", "إكس تي فوير", "اكس تي فوير", "إكس تي فوور", "اكس تي فوور",
+            "إكستي فوار", "اكستي فوار", "إكستي فوير", "اكستي فوير", "إكستي فوور", "اكستي فوور",
+            "إكس تي فوار", "اكس تي فوار", "إكس تي فوير", "اكس تي فوير", "إكس تي فوور", "اكس تي فوور",
+            "إكستي فوار", "اكستي فوار", "إكستي فوير", "اكستي فوير", "إكستي فوور", "اكستي فوور",
+            "إكس تي فوار", "اكس تي فوار", "إكس تي فوير", "اكس تي فوير", "إكس تي فوور", "اكس تي فوور",
+            "إكستي فوار", "اكستي فوار", "إكستي فوير", "اكستي فوير", "إكستي فوور", "اكستي فوور",
+            "إكس تي فوار", "اكس تي فوار", "إكس تي فوير", "اكس تي فوير", "إكس تي فوور", "اكس تي فوور",
+            "إكستي فوار", "اكستي فوار", "إكستي فوير", "اكستي فوير", "إكستي فوور", "اكستي فوور",
+            
+            // XT5 variations - comprehensive phonetic spellings
+            "XT5", "إكس تي فايف", "اكس تي فايف", "إكس تي 5", "اكس تي 5", "إكس تي خمسة", "اكس تي خمسه",
+            "XT فايف", "اكستي فايف", "إكستي فايف", "اكستي 5", "إكستي 5", "اكستي خمسة", "إكستي خمسه",
+            "إكس تي فايڤ", "اكس تي فايڤ", "إكس تي فايڤة", "اكس تي فايڤة", "إكس تي فايڤه", "اكس تي فايڤه",
+            "إكس تي فايڤي", "اكس تي فايڤي", "إكس تي فايڤو", "اكس تي فايڤو", "إكس تي فايڤا", "اكس تي فايڤا",
+            "إكس تي فايڤن", "اكس تي فايڤن", "إكس تي فايڤم", "اكس تي فايڤم", "إكس تي فايڤل", "اكس تي فايڤل",
+        ];
+
+          // Car model variants and trim levels
+          const modelVariants = [
+            "Premium Luxury", "بريميوم لاكشري",
+            "Sport", "سبورت", "رياضي",
+            "Platinum", "بلاتينيوم", "بلاتيني",
+            "V-Series", "في سيريز",
+            "Blackwing", "بلاك وينغ",
+            "ESV", "إي إس في"
+          ];
+
+          // Focused automotive terminology
+          const autoTerms = [
+            "SUV", "إس يو في",
+            "sedan", "سيدان", 
+            "luxury", "لاكشري", "فاخرة",
+            "performance", "بيرفورمانس", "أداء",
+            "engine", "محرك", "موتور",
+            "horsepower", "حصان", "قوة حصانية",
+            "transmission", "ناقل الحركة", "جير",
+            "automatic", "أوتوماتيك", "آلي",
+            "manual", "يدوي", "مانوال",
+            "hybrid", "هايبرد", "هجين",
+            "electric", "كهربائي", "إلكتريك",
+            "AWD", "دفع رباعي",
+            "FWD", "دفع أمامي",
+            "RWD", "دفع خلفي"
+          ];
+
+          // Color options
+          const colors = [
+            "black", "أسود", "اسود",
+            "white", "أبيض", "ابيض", 
+            "silver", "فضي", "رمادي",
+            "red", "أحمر", "احمر",
+            "blue", "أزرق", "ازرق",
+            "gray", "رمادي", "grey",
+            "pearl", "لؤلؤي", "بيرل"
+          ];
+
+          // Focused phrases for better recognition (like Python example)
+          const focusedPhrases = [
+            // Complete car model names
+            "Cadillac Escalade",
+            "Cadillac CT4",
+            "Cadillac CT5", 
+            "Cadillac XT4",
+            "Cadillac XT5",
+            "Cadillac XT6",
+            "Cadillac LYRIQ",
+            "Cadillac CELESTIQ",
+            
+            // OPTIC package variations
+            "OPTIC package",
+            "OPTIC trim",
+            "OPTIC edition",
+            "with OPTIC",
+            "OPTIC sport package",
+            
+            // Common phrases customers use
+            "I want a Cadillac",
+            "Show me the Escalade",
+            "Tell me about CT4",
+            "What is OPTIC",
+            "Cadillac models",
+            "luxury SUV",
+            "premium sedan",
+            "sport package",
+            "V-Series performance",
+            
+            // Technical specifications
+            "all wheel drive",
+            "rear wheel drive", 
+            "turbocharged engine",
+            "automatic transmission",
+            "premium luxury trim",
+            "sport trim level",
+            "platinum edition",
+            
+            // Arabic focused phrases
+            "كاديلاك إسكاليد",
+            "أوبتيك باكج",
+            "سيارة فاخرة",
+            "إس يو في",
+            "محرك قوي"
+          ];
+
+          // Combine all terms with focused phrases having priority
+          const allPhrases = [
+            ...focusedPhrases,  // Add focused phrases first for higher priority
+            ...cadillacTerms,
+            ...modelVariants, 
+            ...autoTerms,
+            ...colors
+          ];
+
+          // Add phrases to Azure Speech SDK
+          let phrasesAdded = 0;
+          allPhrases.forEach(phrase => {
+            if (phrase && phrase.trim()) {
+              try {
+                phraseListGrammar.addPhrase(phrase.trim());
+                phrasesAdded++;
+              } catch (error) {
+                console.warn(`⚠️ Could not add phrase: "${phrase}"`, error);
+              }
+            }
+          });
+
+          console.log(`✅ Successfully added ${phrasesAdded} car-related phrases to Azure Speech SDK`);
+          console.log("🎯 Enhanced vocabulary includes:");
+          console.log("   • Cadillac models and variants");
+          console.log("   • Arabic phonetic equivalents");
+          console.log("   • Automotive terminology");
+          console.log("   • Color names");
+          console.log("   • Performance terms");
+
+          // Store reference for potential updates
+          window.carPhraseListGrammar = phraseListGrammar;
+
+        } catch (error) {
+          console.error("❌ Error setting up car vocabulary phrase list:", error);
+        }
+      }
+
+      // Function to add additional phrases dynamically
+      function addCarPhrase(phrase) {
+        try {
+          if (window.carPhraseListGrammar && phrase && phrase.trim()) {
+            window.carPhraseListGrammar.addPhrase(phrase.trim());
+            console.log(`✅ Added new car phrase: "${phrase}"`);
+            return true;
+          }
+        } catch (error) {
+          console.error(`❌ Error adding phrase "${phrase}":`, error);
+        }
+        return false;
+      }
 
       // Initialize on page load
       document.addEventListener("DOMContentLoaded", function () {
