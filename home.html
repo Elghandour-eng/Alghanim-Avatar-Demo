@@ -1567,17 +1567,23 @@
                 SpeechSDK.PropertyId.SpeechServiceResponse_RequestWordLevelTimestamps,
                 "true"
               );
-              
-              // Configure audio processing for better quality
+              // Configure audio processing for better quality and longer sentences
+              // Increase silence timeout to allow for longer pauses within sentences
               speechConfig.setProperty(
                 SpeechSDK.PropertyId.Speech_SegmentationSilenceTimeoutMs,
-                "2000"
+                "3000"  // 5 seconds - much longer to capture complete sentences
               );
               
-              // Set initial silence timeout
+              // Set initial silence timeout - time to wait before starting recognition
               speechConfig.setProperty(
                 SpeechSDK.PropertyId.SpeechServiceConnection_InitialSilenceTimeoutMs,
-                "10000"
+                "10000"  // 15 seconds - longer initial wait
+              );
+              
+              // Set end silence timeout - time to wait after speech ends before finalizing
+              speechConfig.setProperty(
+                SpeechSDK.PropertyId.SpeechServiceConnection_EndSilenceTimeoutMs,
+                "1000"  // 3 seconds after speech ends
               );
               
               // Enable noise suppression and audio enhancement
@@ -1589,25 +1595,25 @@
               // Set recognition mode for better continuous recognition
               speechConfig.setProperty(
                 SpeechSDK.PropertyId.SpeechServiceConnection_RecoMode,
-                "INTERACTIVE"
+                "CONVERSATION"  // Better for longer sentences
               );
               
-              // Enable stable partial results
+              // Enable stable partial results with higher threshold
               speechConfig.setProperty(
                 SpeechSDK.PropertyId.SpeechServiceResponse_StablePartialResultThreshold,
-                "3"
-              );
-              
-              // Configure end silence timeout for better phrase detection
-              speechConfig.setProperty(
-                SpeechSDK.PropertyId.Speech_SegmentationSilenceTimeoutMs,
-                "1500"
+                "4"  // Higher threshold for more stable results
               );
               
               // Enable dictation mode for better sentence recognition
               speechConfig.setProperty(
                 SpeechSDK.PropertyId.SpeechServiceConnection_Mode,
-                "conversation"
+                "DICTATION"
+              );
+              
+              // Add phrase-level timeout for better sentence completion
+              speechConfig.setProperty(
+                SpeechSDK.PropertyId.SpeechServiceResponse_PhraseResultTimeoutMs,
+                "5000"  // 5 seconds for phrase completion
               );
 
               // Configure audio with noise suppression
@@ -2794,9 +2800,10 @@
 
             heygenAvatar.speakText(message);
 
-            // If the mic was on before, we now leave it to the user to re-enable it.
+            // Automatically restart microphone after avatar finishes speaking
             if (wasListeningBeforeAvatar) {
-              wasListeningBeforeAvatar = false; // Reset flag
+
+            wasListeningBeforeAvatar = false; // Reset flag
             }
           }
         });
